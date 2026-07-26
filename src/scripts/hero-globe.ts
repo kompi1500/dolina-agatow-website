@@ -195,6 +195,32 @@ function runIntro(els: Els): void {
 
   map.on('style.load', () => {
     map.setProjection({ type: 'globe' });
+    // fotorealistyczna Ziemia (NASA Blue Marble, domena publiczna) na starcie;
+    // wygasza się przy zniżaniu, odsłaniając mapę wektorową pod spodem
+    map.addSource('ortofoto', {
+      type: 'raster',
+      tiles: [
+        'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
+      ],
+      tileSize: 256,
+      maxzoom: 8,
+      attribution: 'NASA GIBS / Blue Marble',
+    });
+    map.addLayer({
+      id: 'ortofoto',
+      type: 'raster',
+      source: 'ortofoto',
+      paint: {
+        'raster-opacity': ['interpolate', ['linear'], ['zoom'], 5.2, 1, 7.2, 0],
+        'raster-fade-duration': 0,
+      },
+    });
+    // napisy dopiero po zejściu z orbity — na fotorealistycznym globie tylko przeszkadzają
+    for (const layer of map.getStyle().layers ?? []) {
+      if (layer.type === 'symbol') {
+        map.setLayerZoomRange(layer.id, Math.max(layer.minzoom ?? 0, 6.8), layer.maxzoom ?? 24);
+      }
+    }
     void addPolandOutline(map);
     els.mapDiv.style.opacity = '1';
 
