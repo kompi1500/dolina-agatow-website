@@ -1,15 +1,15 @@
 /* Paleta agatowa — narracja „z kosmosu do doliny” */
 :root {
-  /* kosmos / hero */
-  --kosmos: #05070f;
-  --granat: #101a2b;
-  --grafit: #1f2733;
+  /* kosmos / hero — neutralna czerń, bez granatu */
+  --kosmos: #080706;
+  --heban: #241c12;
+  --brunat: #332a1d;
 
-  /* dolina / sekcje jasne */
+  /* dolina / sekcje jasne — ciepłe neutralne */
   --krem: #faf6ef;
   --krem-cien: #f1ead9;
-  --atrament: #23303f;
-  --atrament-mute: #55606e;
+  --atrament: #2e2a22;
+  --atrament-mute: #6d6456;
 
   /* akcenty agatowe */
   --bursztyn: #d98324;
@@ -56,7 +56,7 @@ h3 {
   font-family: var(--font-display);
   font-weight: 560;
   line-height: 1.15;
-  color: var(--granat);
+  color: var(--heban);
   text-wrap: balance;
 }
 
@@ -110,15 +110,16 @@ a:hover {
 
 .agat-pin-label {
   order: -1;
-  background: var(--granat);
-  color: var(--krem);
+  background: rgb(250 246 239 / 0.94);
+  color: var(--atrament);
   font-family: var(--font-body);
   font-size: 0.82rem;
-  font-weight: 600;
-  padding: 0.35rem 0.8rem;
+  font-weight: 650;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid rgb(217 131 36 / 0.45);
   border-radius: 999px;
   white-space: nowrap;
-  box-shadow: 0 4px 16px rgb(5 7 15 / 0.35);
+  box-shadow: 0 4px 14px rgb(36 28 18 / 0.25);
 }
 
 .agat-pin-dot {
@@ -128,8 +129,8 @@ a:hover {
   background: var(--bursztyn);
   border: 3px solid var(--krem);
   box-shadow:
-    0 0 0 2px var(--granat),
-    0 4px 12px rgb(5 7 15 / 0.4);
+    0 0 0 2px var(--rdza),
+    0 4px 12px rgb(36 28 18 / 0.35);
   animation: pin-drop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 }
 

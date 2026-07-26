@@ -1,39 +1,57 @@
 ---
 // Sekcja krajoznawcza. Fakty za: Wikipedia (Płóczki Górne, Pola Agatowe,
 // Agaty z Płóczek Górnych, Nagórze, Słotwina, Lwóweckie Lato Agatowe) — źródła w stopce.
-// Galeria: zdjęcia CC z Wikimedia Commons podpinane w public/images/ (atrybucje w stopce).
+// Galeria: zdjęcia CC z Wikimedia Commons w public/images/, atrybucje przy zdjęciach.
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// atrybucje autorów i licencji — sekcja „Zdjęcia” w stopce (Footer.astro)
+// atrybucja autora i licencji wyświetla się przy każdym zdjęciu (wymóg CC)
 const zdjecia = [
   {
     plik: 'agat-przekroj.jpg',
+    autor: 'Robert Niedźwiedzki',
+    licencja: 'CC BY 3.0',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:Agate_from_P%C5%82%C3%B3czki_G%C3%B3rne_RN1.jpg',
     alt: 'Przekrój agatu z Płóczek Górnych o koncentrycznych warstwach chalcedonu',
     podpis: 'Agat z Płóczek Górnych',
   },
   {
     plik: 'agat-darski.jpg',
+    autor: 'Lech Darski',
+    licencja: 'CC BY-SA 3.0',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:Agat_-_P%C5%82%C3%B3czki_G%C3%B3rne,_G._Kaczawskie,_Poland..jpg',
     alt: 'Kolorowy agat znaleziony w Płóczkach Górnych, Góry Kaczawskie',
     podpis: 'Agat z okolic Płóczek',
   },
   {
     plik: 'ploczki-gorne.jpg',
+    autor: 'Platanacero',
+    licencja: 'CC BY-SA 4.0',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:P%C5%82%C3%B3czki_G%C3%B3rne_1.jpg',
     alt: 'Zabudowania wsi Płóczki Górne wśród pól i wzgórz',
     podpis: 'Płóczki Górne',
   },
   {
     plik: 'nagorze-pogorze.jpg',
+    autor: 'Platanacero',
+    licencja: 'domena publiczna',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:Pog%C3%B3rze_Izerskie_Nag%C3%B3rze1.JPG',
     alt: 'Krajobraz Pogórza Izerskiego w okolicach wsi Nagórze',
     podpis: 'Pogórze Izerskie pod Nagórzem',
   },
   {
     plik: 'slotwina.jpg',
+    autor: 'Jarosław Łukaszewski',
+    licencja: 'CC BY-SA 3.0',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:S%C5%82otwina_w_P%C5%82oczkach_G%C3%B3rnych.JPG',
     alt: 'Rzeka Słotwina przepływająca przez Płóczki Górne',
     podpis: 'Słotwina w Płóczkach Górnych',
   },
   {
     plik: 'lwowek-mury.jpg',
+    autor: 'Ludwig Schneider',
+    licencja: 'CC BY-SA 3.0',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:Lw%C3%B3wek_%C5%9Al%C4%85ski_Mury_obronne.JPG',
     alt: 'Średniowieczne mury obronne Lwówka Śląskiego',
     podpis: 'Mury obronne Lwówka Śląskiego',
   },
@@ -99,7 +117,12 @@ const ciekawostki = [
         zdjecia.map((z) => (
           <figure class="foto">
             <img src={`${base}/images/${z.plik}`} alt={z.alt} loading="lazy" decoding="async" />
-            <figcaption>{z.podpis}</figcaption>
+            <figcaption>
+              <span class="podpis">{z.podpis}</span>
+              <a class="kredyt" href={z.zrodlo} rel="noopener" target="_blank">
+                fot. {z.autor} · {z.licencja}
+              </a>
+            </figcaption>
           </figure>
         ))
       }
@@ -135,7 +158,7 @@ const ciekawostki = [
     flex-direction: column;
     gap: 0.35rem;
     padding: 1.2rem 1.4rem;
-    background: var(--granat);
+    background: var(--heban);
     color: rgb(250 246 239 / 0.85);
     border-radius: 0.6rem;
   }
@@ -165,7 +188,7 @@ const ciekawostki = [
     border-radius: 0.6rem;
     overflow: hidden;
     position: relative;
-    background: var(--granat);
+    background: var(--heban);
   }
 
   .foto img {
@@ -182,9 +205,21 @@ const ciekawostki = [
   .foto figcaption {
     position: absolute;
     inset: auto 0 0;
-    padding: 1.4rem 0.9rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    padding: 1.6rem 0.9rem 0.55rem;
     font-size: 0.85rem;
     color: var(--krem);
-    background: linear-gradient(transparent, rgb(5 7 15 / 0.72));
+    background: linear-gradient(transparent, rgb(8 7 6 / 0.78));
+  }
+
+  .kredyt {
+    font-size: 0.68rem;
+    color: rgb(250 246 239 / 0.6);
+    text-decoration: none;
+  }
+
+  .kredyt:hover {
+    color: var(--bursztyn-jasny);
   }
 </style>

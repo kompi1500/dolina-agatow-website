@@ -8,13 +8,15 @@
  * na finalnej pozycji albo samo gwiezdne tło z CSS — tytuł zawsze widoczny.
  */
 import * as THREE from 'three';
+import { mesh as topoMesh } from 'topojson-client';
+import type { Topology, GeometryCollection } from 'topojson-specification';
 import { Map as MapLibreMap, Marker } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const PLOCZKI = { lat: 51.0825, lon: 15.5328 };
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
-const FINAL_ZOOM = 11.4;
-const CROSSFADE_MAP_ZOOM = 4.6; // kadr mapy odpowiadający końcowemu kadrowi globu
+const FINAL_ZOOM = 10.9;
+const CROSSFADE_MAP_ZOOM = 5.6; // kadr mapy odpowiadający końcowemu kadrowi globu
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -76,28 +78,34 @@ function makeStars(): THREE.Points {
   return new THREE.Points(geo, mat);
 }
 
-function makeAtmosphere(): THREE.Mesh {
-  // poświata: odwrócona sfera z fresnelem od krawędzi
-  const mat = new THREE.ShaderMaterial({
-    side: THREE.BackSide,
-    transparent: true,
-    depthWrite: false,
-    uniforms: { c: { value: new THREE.Color(0x6fb7ff) } },
-    vertexShader: /* glsl */ `
-      varying vec3 vNormal;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }`,
-    fragmentShader: /* glsl */ `
-      uniform vec3 c;
-      varying vec3 vNormal;
-      void main() {
-        float glow = pow(0.72 - dot(vNormal, vec3(0.0, 0.0, -1.0)), 3.5);
-        gl_FragColor = vec4(c, 1.0) * glow;
-      }`,
-  });
-  return new THREE.Mesh(new THREE.SphereGeometry(1.16, 48, 48), mat);
+type CountriesTopo = Topology<{ countries: GeometryCollection<{ name?: string }> }>;
+
+/** Granice państw jako linie tuż nad powierzchnią globu. */
+function bordersFromTopo(
+  topo: CountriesTopo,
+  filter: (a: { id?: string | number }, b: { id?: string | number }) => boolean,
+  color: number,
+  opacity: number,
+  radius: number,
+): THREE.LineSegments {
+  const multiline = topoMesh(topo, topo.objects.countries, filter);
+  const positions: number[] = [];
+  const push = (lon: number, lat: number) => {
+    const v = latLonToVector3(lat, lon, radius);
+    positions.push(v.x, v.y, v.z);
+  };
+  const lines =
+    multiline.type === 'MultiLineString' ? multiline.coordinates : [multiline.coordinates];
+  for (const line of lines) {
+    for (let i = 0; i < line.length - 1; i++) {
+      push(line[i]![0]!, line[i]![1]!);
+      push(line[i + 1]![0]!, line[i + 1]![1]!);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
+  return new THREE.LineSegments(geo, mat);
 }
 
 function createMap(mapDiv: HTMLElement, interactive: boolean, zoom: number): MapLibreMap {
@@ -149,9 +157,10 @@ function showFinal(els: Els, existingMap?: MapLibreMap): void {
 
 async function runIntro(els: Els): Promise<void> {
   const loader = new THREE.TextureLoader();
-  const [dayTex, cloudTex] = await Promise.all([
+  const [dayTex, cloudTex, topo] = await Promise.all([
     loader.loadAsync(`${base}/textures/2k_earth_daymap.jpg`),
     loader.loadAsync(`${base}/textures/2k_earth_clouds.jpg`),
+    fetch(`${base}/data/countries-50m.json`).then((r) => r.json() as Promise<CountriesTopo>),
   ]);
   dayTex.colorSpace = THREE.SRGBColorSpace;
 
@@ -160,7 +169,7 @@ async function runIntro(els: Els): Promise<void> {
     antialias: true,
     alpha: true,
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
@@ -199,8 +208,11 @@ async function runIntro(els: Els): Promise<void> {
     }),
   );
   globe.add(clouds);
+  // granice państw + wyróżniona Polska (bursztyn), obracają się razem z globem
+  const isPL = (g: { id?: string | number }) => String(g.id) === '616';
+  globe.add(bordersFromTopo(topo, (a, b) => a !== b, 0xfaf6ef, 0.32, 1.002));
+  globe.add(bordersFromTopo(topo, (a, b) => isPL(a) || isPL(b), 0xe8a13c, 0.95, 1.003));
   scene.add(globe);
-  scene.add(makeAtmosphere());
 
   // orientacje: start nad Atlantykiem (Europa na horyzoncie), koniec — Płóczki Górne
   // na wprost kamery; obie liczone tak samo, więc slerp idzie po ładnym łuku
@@ -223,10 +235,10 @@ async function runIntro(els: Els): Promise<void> {
     map = undefined;
   }
 
-  const T_HOLD = 900; // spokojny start
-  const T_FLY = 3600; // lot: obrót + zoom
-  const T_FADE = 1100; // crossfade glob→mapa
-  const T_MAPFLY = 3400; // dolot mapy do wsi
+  const T_HOLD = 800; // spokojny start
+  const T_FLY = 4300; // lot: obrót + zoom
+  const T_FADE = 900; // crossfade glob→mapa (w trakcie ruchu obu warstw)
+  const T_MAPFLY = 3200; // dolot mapy do wsi
 
   let finished = false;
   let raf = 0;
@@ -273,11 +285,11 @@ async function runIntro(els: Els): Promise<void> {
     const e = easeInOut(flyT);
     globe.quaternion.slerpQuaternions(startQ, endQ, e);
     clouds.rotation.y += 0.00018;
-    camera.position.z = 3.6 - e * (3.6 - 1.55);
+    camera.position.z = 3.6 - e * (3.6 - 1.32);
     renderer.render(scene, camera);
 
-    // faza 3: crossfade
-    const fadeT = THREE.MathUtils.clamp((t - T_HOLD - T_FLY + 250) / T_FADE, 0, 1);
+    // faza 3: crossfade — zaczyna się, gdy glob jeszcze leci, a mapa już rusza
+    const fadeT = THREE.MathUtils.clamp((t - T_HOLD - T_FLY + 700) / T_FADE, 0, 1);
     if (fadeT > 0) {
       els.mapDiv.style.opacity = String(fadeT);
       els.canvas.style.opacity = String(1 - fadeT);
@@ -287,6 +299,7 @@ async function runIntro(els: Els): Promise<void> {
           center: [PLOCZKI.lon, PLOCZKI.lat],
           zoom: FINAL_ZOOM,
           duration: T_MAPFLY,
+          curve: 1.25,
           essential: true,
         });
       }
