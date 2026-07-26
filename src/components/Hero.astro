@@ -17,9 +17,6 @@
     </p>
     <h1>Dolina Agatów</h1>
     <p class="hero-detal">Płóczki Górne · Nagórze · Pogórze Izerskie</p>
-    <a href="#o-nas" class="hero-scroll" aria-label="Przewiń do treści">
-      <span></span>
-    </a>
   </div>
 
   <button type="button" class="hero-skip" id="hero-skip">Pomiń intro</button>
@@ -58,8 +55,9 @@
     transition: opacity 0.4s linear;
   }
 
-  /* przyciemnienie ortofoto po wylądowaniu: napisy mapy i tytuł wychodzą na pierwszy plan */
-  .hero-stage.done::after {
+  /* przyciemnienie od pierwszej klatki (bez przełączki po wylądowaniu):
+     napisy mapy i tytuł zawsze na pierwszym planie */
+  .hero-stage::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -100,14 +98,10 @@
       visibility 1.4s;
   }
 
-  /* po wylądowaniu blok tytułowy siada w złotym cięciu ekranu (środek ~61.8% wysokości) */
+  /* po wylądowaniu blok tytułowy podchodzi pod pineskę (wieś w górnym złotym cięciu) */
   .hero-stage.done + .hero-overlay {
     justify-content: flex-end;
-    padding-bottom: clamp(6rem, 22vh, 13rem);
-  }
-
-  .hero-stage.done + .hero-overlay .hero-scroll {
-    margin-top: 1.6rem;
+    padding-bottom: clamp(8rem, 28vh, 17rem);
   }
 
   /* typografia w proporcjach φ: tytuł 4.6rem → nazwa 4.6/φ² ≈ 1.75rem → detal 1.75/φ ≈ 1.08...
@@ -136,44 +130,6 @@
     text-transform: uppercase;
     color: var(--bursztyn-jasny);
     margin: 1em 0 0;
-  }
-
-  .hero-scroll {
-    margin-top: 3rem;
-    width: 1.6rem;
-    height: 2.6rem;
-    border: 2px solid rgb(250 246 239 / 0.5);
-    border-radius: 1rem;
-    display: grid;
-    justify-content: center;
-    padding-top: 0.5rem;
-  }
-
-  .hero-scroll span {
-    width: 3px;
-    height: 0.6rem;
-    border-radius: 2px;
-    background: var(--bursztyn-jasny);
-    animation: scroll-hint 1.8s ease-in-out infinite;
-  }
-
-  @keyframes scroll-hint {
-    0%,
-    100% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    60% {
-      transform: translateY(0.7rem);
-      opacity: 0.2;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hero-scroll span {
-      animation: none;
-    }
   }
 
   .hero-skip {

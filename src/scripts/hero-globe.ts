@@ -165,7 +165,10 @@ function showFinal(els: Els, existingMap?: MapLibreMap): void {
 }
 
 function runIntro(els: Els): void {
-  const map = createMap(els.mapDiv, false, START_ZOOM, START_CENTER);
+  // start od FINALNEGO widoku wsi (niewidocznie, pod gwiazdami) — kafelki lądowania
+  // wchodzą do cache'u, więc dolot kończy się ostrym obrazem bez doczytywania
+  const map = createMap(els.mapDiv, false, FINAL_ZOOM, PLOCZKI);
+  map.setPadding({ top: 0, left: 0, right: 0, bottom: landingPadding(els) });
   if (import.meta.env.DEV) (window as unknown as { __heroMap?: MapLibreMap }).__heroMap = map;
 
   let finished = false;
@@ -219,20 +222,23 @@ function runIntro(els: Els): void {
       }
     }
     void addPolandOutline(map);
-    els.mapDiv.style.opacity = '1';
+    // mapa pozostaje niewidoczna do końca preloadu — odsłania ją dopiero begin()
 
     // start dopiero, gdy karta jest widoczna — w tle animacja by przeskoczyła
     const begin = () => {
+      // przeskok na orbitę (finał już w cache'u) i dopiero teraz pokazujemy mapę
+      map.jumpTo({ center: START_CENTER, zoom: START_ZOOM });
+      els.mapDiv.style.opacity = '1';
       // faza 1: krótki obrót globu ku Europie
-      map.easeTo({ center: [2, 44], zoom: START_ZOOM + 0.25, duration: 1200, easing: (t) => t });
+      map.easeTo({ center: [2, 44], zoom: START_ZOOM + 0.25, duration: 900, easing: (t) => t });
       // faza 2: jeden ciągły, żwawy przelot z orbity na Płóczki Górne
       window.setTimeout(() => {
         if (finished) return;
         map.flyTo({
           center: PLOCZKI,
           zoom: FINAL_ZOOM,
-          duration: 3400,
-          curve: 1.4,
+          duration: 3000,
+          curve: 1.42,
           padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
           essential: true,
         });
@@ -241,19 +247,32 @@ function runIntro(els: Els): void {
           addPin(map, els.mapDiv);
           window.setTimeout(() => finish(false), 150);
         });
-      }, 1250);
+      }, 950);
     };
-    if (document.visibilityState === 'visible') {
-      begin();
-    } else {
+    const whenVisible = (fn: () => void) => {
+      if (document.visibilityState === 'visible') {
+        fn();
+        return;
+      }
       const onVisible = () => {
         if (document.visibilityState === 'visible') {
           document.removeEventListener('visibilitychange', onVisible);
-          begin();
+          fn();
         }
       };
       document.addEventListener('visibilitychange', onVisible);
-    }
+    };
+    // czekamy aż kafelki finału się wczytają (max 1.8 s), dopiero wtedy startujemy
+    const preload = new Promise<void>((resolve) => {
+      const t = window.setTimeout(resolve, 1800);
+      map.once('idle', () => {
+        window.clearTimeout(t);
+        resolve();
+      });
+    });
+    void preload.then(() => {
+      if (!finished) whenVisible(begin);
+    });
   });
 }
 
