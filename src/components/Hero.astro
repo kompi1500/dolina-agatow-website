@@ -25,6 +25,10 @@
   <button type="button" class="hero-skip" id="hero-skip">Pomiń intro</button>
 </section>
 
+<script>
+  import '../scripts/hero-globe';
+</script>
+
 <style>
   .hero {
     position: relative;
@@ -44,8 +48,24 @@
     inset: 0;
   }
 
+  .hero-stage canvas {
+    width: 100%;
+    height: 100%;
+  }
+
   #hero-map {
     opacity: 0;
+    transition: opacity 0.4s linear;
+  }
+
+  /* winieta nad mapą + ciemny pas u góry, żeby nawigacja była czytelna na jasnej mapie */
+  .hero-stage.done::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 18vmin rgb(5 7 15 / 0.55);
+    background: linear-gradient(180deg, rgb(5 7 15 / 0.62) 0%, transparent 16%);
   }
 
   .hero-overlay {
@@ -64,6 +84,41 @@
 
   .hero-overlay > * {
     pointer-events: auto;
+  }
+
+  .hero-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .hero-overlay {
+    transition:
+      opacity 1.4s ease,
+      visibility 1.4s;
+  }
+
+  /* po wylądowaniu na jasnej mapie: tytuł schodzi w dół i ciemnieje, żeby był czytelny */
+  .hero-stage.done + .hero-overlay {
+    justify-content: flex-end;
+    padding-bottom: clamp(3rem, 10vh, 7rem);
+    text-shadow: 0 1px 18px rgb(250 246 239 / 0.75);
+  }
+
+  .hero-stage.done + .hero-overlay h1 {
+    color: var(--granat);
+  }
+
+  .hero-stage.done + .hero-overlay .hero-sub {
+    color: var(--atrament);
+  }
+
+  .hero-stage.done + .hero-overlay .hero-kicker {
+    color: var(--rdza);
+  }
+
+  .hero-stage.done + .hero-overlay .hero-scroll {
+    margin-top: 1.5rem;
+    border-color: rgb(16 26 43 / 0.45);
   }
 
   .hero-kicker {
