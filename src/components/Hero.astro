@@ -1,8 +1,8 @@
 ---
-// Hero „z kosmosu do doliny”: kontener na scenę Three.js (glob → mapa).
-// Warstwy: #globe-canvas (Three.js), #hero-map (MapLibre), .hero-overlay (tytuł).
-// Skrypt hero-globe.ts montuje się tylko gdy WebGL dostępny i brak prefers-reduced-motion;
-// w przeciwnym razie zostaje statyczne tło gwiazd + od razu widoczny tytuł.
+// Hero: mapa MapLibre (ortofoto Sentinel-2) z krótkim zjazdem znad Polski na Płóczki Górne.
+// Warstwy: #globe-canvas (gwiazdy 2D na czas preloadu), #hero-map, .hero-overlay (tytuł).
+// hero-globe.ts preładowuje kafelki trasy po ciemku i odpala animację tylko przy WebGL
+// i braku prefers-reduced-motion; w przeciwnym razie od razu finalny widok + tytuł.
 ---
 
 <section class="hero" id="top">
@@ -18,6 +18,12 @@
     <h1>Dolina Agatów</h1>
     <p class="hero-detal">Płóczki Górne · Nagórze · Pogórze Izerskie</p>
   </div>
+
+  <script is:inline>
+    // tytuł znika PRZED pierwszym paintem (żadnego błysku przy odświeżeniu);
+    // bez JS skrypt się nie wykona i tytuł normalnie widać
+    document.getElementById('hero-overlay').classList.add('hidden');
+  </script>
 
   <button type="button" class="hero-skip" id="hero-skip">Pomiń intro</button>
 </section>

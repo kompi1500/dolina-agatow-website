@@ -12,10 +12,9 @@ import { Map as MapLibreMap, Marker, type LngLatLike } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const PLOCZKI: LngLatLike = [15.5328, 51.0825];
-const START_CENTER: LngLatLike = [-20, 35]; // Atlantyk, Europa na horyzoncie globu
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const FINAL_ZOOM = 11.5; // od ~11 styl pokazuje nazwy wsi — pineska ma być podpisana przez mapę
-const START_ZOOM = 1.4;
+const START_ZOOM = 3.4; // start od razu nad Polską — krótki zoom zamiast lotu przez pół świata
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -203,7 +202,7 @@ function runIntro(els: Els): void {
   });
 
   map.on('style.load', () => {
-    map.setProjection({ type: 'globe' });
+    // zwykły mercator — projekcja kulista dławiła Safari, a przy tym kadrze nie robi różnicy
 
     // JEDNA warstwa ortofoto od orbity do wsi: Sentinel-2 cloudless (10 m).
     // Wchodzi POD napisy stylu (beforeId), więc podpisy miejscowości zostają.
@@ -230,17 +229,16 @@ function runIntro(els: Els): void {
 
     // start dopiero, gdy karta jest widoczna — w tle animacja by przeskoczyła
     const begin = () => {
-      // przeskok na orbitę (cała trasa już w cache'u) i dopiero teraz pokazujemy mapę
-      map.jumpTo({ center: START_CENTER, zoom: START_ZOOM });
+      // widok Polski (trasa w cache'u), fade-in mapy i po chwili jeden krótki zjazd
+      map.jumpTo({ center: PLOCZKI, zoom: START_ZOOM });
       els.mapDiv.style.opacity = '1';
-      // jeden ciągły przelot — flyTo sam obraca glob znad Atlantyku nad Polskę
       window.setTimeout(() => {
         if (finished) return;
         map.flyTo({
           center: PLOCZKI,
           zoom: FINAL_ZOOM,
-          duration: 3200,
-          curve: 1.4,
+          duration: 2400,
+          curve: 1.25,
           padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
           essential: true,
         });
@@ -249,7 +247,7 @@ function runIntro(els: Els): void {
           addPin(map, els.mapDiv);
           window.setTimeout(() => finish(false), 150);
         });
-      }, 350);
+      }, 550);
     };
     const whenVisible = (fn: () => void) => {
       if (document.visibilityState === 'visible') {
@@ -276,16 +274,16 @@ function runIntro(els: Els): void {
       });
     const ladder: { center: LngLatLike; zoom: number }[] = [
       { center: PLOCZKI, zoom: FINAL_ZOOM },
-      { center: PLOCZKI, zoom: 9.3 },
-      { center: PLOCZKI, zoom: 7.1 },
-      { center: PLOCZKI, zoom: 4.9 },
-      { center: [8, 46], zoom: 2.7 },
+      { center: PLOCZKI, zoom: 9.4 },
+      { center: PLOCZKI, zoom: 7.4 },
+      { center: PLOCZKI, zoom: 5.4 },
+      { center: PLOCZKI, zoom: START_ZOOM },
     ];
     void (async () => {
       for (const step of ladder) {
         if (finished) return;
         map.jumpTo(step);
-        await idleOnce(900);
+        await idleOnce(700);
       }
       if (!finished) whenVisible(begin);
     })();
