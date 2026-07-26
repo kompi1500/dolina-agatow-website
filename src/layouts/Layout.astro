@@ -1,0 +1,33 @@
+---
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Dolina Agatów — Stowarzyszenie na Rzecz Rozwoju Płóczek Górnych, Nagórza i Okolic',
+  description = 'Stowarzyszenie „Dolina Agatów” działa na rzecz zrównoważonego rozwoju oraz ochrony przyrodniczego, geologicznego i kulturowego dziedzictwa Płóczek Górnych, Nagórza i okolic (Pogórze Izerskie, gmina Lwówek Śląski).',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,157 @@
+---
+// Sekcja krajoznawcza. Fakty za: Wikipedia (Płóczki Górne, Pola Agatowe,
+// Agaty z Płóczek Górnych, Nagórze, Słotwina, Lwóweckie Lato Agatowe) — źródła w stopce.
+// Galeria: zdjęcia CC z Wikimedia Commons podpinane w public/images/ (atrybucje w stopce).
+
+const ciekawostki = [
+  {
+    liczba: '1217',
+    opis: 'pierwsza wzmianka o Płóczkach Górnych — nazwa wsi pochodzi od płukania złota w osadach Słotwiny',
+  },
+  {
+    liczba: '1992',
+    opis: 'na Polach Agatowych odkryto prazjolit — po raz pierwszy na świecie potwierdzony w stanie naturalnym',
+  },
+  {
+    liczba: '~50 000',
+    opis: 'gości przyciąga co roku Lwóweckie Lato Agatowe — największa impreza mineralogiczna w Polsce',
+  },
+];
+---
+
+<section class="section dolina" id="dolina">
+  <div class="container">
+    <span class="section-label">Kraina agatów</span>
+    <h2>Dolina, w której ziemia kryje skarby</h2>
+
+    <div class="prose">
+      <p>
+        Prawie 300 milionów lat temu okolice dzisiejszych Płóczek Górnych zalewała lawa
+        permskich wulkanów. W pustkach po gazach uwięzionych w stygnącej lawie chalcedon
+        odkładał się warstwa po warstwie przez miliony lat — tak powstały <strong
+        >agaty z Płóczek Górnych</strong>, uznawane za jedne z najpiękniejszych na świecie.
+      </p>
+      <p>
+        Słynne <strong>Pola Agatowe</strong> na stokach wzgórza Lipień opisywano w literaturze
+        już w 1846 roku. Dziś prowadzi do nich niebieski szlak z Lwówka Śląskiego, a
+        poszukiwacz agatów trafił nawet do logo wsi. Oprócz agatów znajdowano tu jaspisy,
+        ametysty, kryształ górski — i wspomniany prazjolit, którego naturalne występowanie
+        potwierdzono tu jako pierwsze na świecie.
+      </p>
+      <p>
+        Dolinę rzeki <strong>Słotwiny</strong> zamyka od południa <strong>Nagórze</strong> —
+        najmniejsza wieś gminy Lwówek Śląski, wzmiankowana w 1313 roku, przez wieki należąca
+        do benedyktynek z Lubomierza, z XIX-wiecznym pałacem wpisanym do rejestru zabytków.
+        Obie miejscowości łączy krajobraz Pogórza Izerskiego: głębokie doliny, polne drogi
+        i widoki, które chcemy zachować dla następnych pokoleń.
+      </p>
+    </div>
+
+    <ul class="ciekawostki">
+      {
+        ciekawostki.map((c) => (
+          <li>
+            <span class="liczba">{c.liczba}</span>
+            <span class="opis">{c.opis}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="galeria" id="galeria">
+      <!-- Placeholdery — podmieniane na zdjęcia CC z Wikimedia Commons -->
+      <figure class="ph ph-agat"><figcaption>Agat z Płóczek Górnych</figcaption></figure>
+      <figure class="ph ph-pola"><figcaption>Pola Agatowe pod Lipieniem</figcaption></figure>
+      <figure class="ph ph-wies"><figcaption>Płóczki Górne</figcaption></figure>
+      <figure class="ph ph-nagorze"><figcaption>Okolice Nagórza</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .dolina {
+    background: linear-gradient(180deg, var(--krem) 0%, var(--krem-cien) 100%);
+  }
+
+  .prose {
+    max-width: 44rem;
+    font-size: 1.06rem;
+  }
+
+  .prose strong {
+    color: var(--rdza);
+  }
+
+  .ciekawostki {
+    list-style: none;
+    margin: 2.75rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1.25rem;
+  }
+
+  .ciekawostki li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.2rem 1.4rem;
+    background: var(--granat);
+    color: rgb(250 246 239 / 0.85);
+    border-radius: 0.6rem;
+  }
+
+  .liczba {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 540;
+    color: var(--bursztyn-jasny);
+    line-height: 1;
+  }
+
+  .opis {
+    font-size: 0.9rem;
+  }
+
+  .galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+    margin-top: 2.75rem;
+  }
+
+  .ph {
+    margin: 0;
+    aspect-ratio: 4 / 3;
+    border-radius: 0.6rem;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ph figcaption {
+    width: 100%;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: var(--krem);
+    background: linear-gradient(transparent, rgb(5 7 15 / 0.65));
+  }
+
+  /* tymczasowe tła-placeholdery w klimacie agatowym */
+  .ph-agat {
+    background: radial-gradient(circle at 40% 40%, #e8a13c, #a4501c 45%, #101a2b 100%);
+  }
+
+  .ph-pola {
+    background: radial-gradient(circle at 60% 30%, #2a9d8f, #1f7468 50%, #101a2b 100%);
+  }
+
+  .ph-wies {
+    background: radial-gradient(circle at 30% 60%, #b7c9a5, #55705a 55%, #101a2b 100%);
+  }
+
+  .ph-nagorze {
+    background: radial-gradient(circle at 70% 50%, #c9a5b7, #705a67 55%, #101a2b 100%);
+  }
+</style>

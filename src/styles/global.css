@@ -1,0 +1,109 @@
+/* Paleta agatowa — narracja „z kosmosu do doliny” */
+:root {
+  /* kosmos / hero */
+  --kosmos: #05070f;
+  --granat: #101a2b;
+  --grafit: #1f2733;
+
+  /* dolina / sekcje jasne */
+  --krem: #faf6ef;
+  --krem-cien: #f1ead9;
+  --atrament: #23303f;
+  --atrament-mute: #55606e;
+
+  /* akcenty agatowe */
+  --bursztyn: #d98324;
+  --bursztyn-jasny: #e8a13c;
+  --rdza: #a4501c;
+  --turkus: #2a9d8f;
+  --turkus-ciemny: #1f7468;
+
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-body: 'Inter Variable', system-ui, sans-serif;
+
+  --max-w: 72rem;
+  --pad-x: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--atrament);
+  background: var(--krem);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 560;
+  line-height: 1.15;
+  color: var(--granat);
+  text-wrap: balance;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--turkus-ciemny);
+}
+
+a:hover {
+  color: var(--rdza);
+}
+
+.container {
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding-inline: var(--pad-x);
+}
+
+.section {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rdza);
+  margin-bottom: 0.75rem;
+}
+
+.section h2 {
+  font-size: clamp(1.75rem, 4vw, 2.6rem);
+  margin: 0 0 1.25rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -1,0 +1,148 @@
+---
+const filary = [
+  {
+    tytul: 'Przyroda i krajobraz',
+    opis: 'Chronimy krajobraz i przyrodę doliny Słotwiny — od bioróżnorodności i cennych siedlisk po bezpieczeństwo przeciwpowodziowe całej zlewni.',
+  },
+  {
+    tytul: 'Agaty i dziedzictwo geologiczne',
+    opis: 'Dbamy o unikatowe w skali świata Płóczkowskie Pola Agatowe i popularyzujemy wiedzę o agatowych tradycjach Krainy Wygasłych Wulkanów.',
+  },
+  {
+    tytul: 'Historia i zabytki',
+    opis: 'Dokumentujemy historię obu wsi i działamy na rzecz zachowania zabytków — dzwonnicy, Pałacu Nagórze, ruin kaplicy czy dawnego cmentarza ewangelickiego.',
+  },
+  {
+    tytul: 'Ludzie i rozwój',
+    opis: 'Integrujemy mieszkańców, wspieramy edukację, geoturystykę i lokalną przedsiębiorczość — rozwój, który nie niszczy tego, co w dolinie najcenniejsze.',
+  },
+];
+
+const zarzad = [
+  { imie: 'Artur Kompanowski', funkcja: 'Prezes Zarządu' },
+  { imie: 'Katarzyna Kołodziejczyk', funkcja: 'Wiceprezes' },
+  { imie: 'Kinga Nestorowicz', funkcja: 'Sekretarz' },
+  { imie: 'Mateusz Markowski', funkcja: 'Członek Zarządu' },
+];
+---
+
+<section class="section" id="o-nas">
+  <div class="container">
+    <span class="section-label">O stowarzyszeniu</span>
+    <h2>Działamy dla doliny, w której mieszkamy</h2>
+    <div class="intro">
+      <p>
+        Jesteśmy stowarzyszeniem mieszkańców Płóczek Górnych, Nagórza i okolic — zakątka
+        Pogórza Izerskiego słynącego z jednych z najpiękniejszych agatów na świecie. Naszym
+        celem jest zrównoważony rozwój obu miejscowości oraz ochrona ich dziedzictwa:
+        przyrodniczego, geologicznego, krajobrazowego, historycznego i kulturowego.
+      </p>
+      <p>
+        Działamy społecznie i lokalnie: organizujemy wydarzenia i spacery edukacyjne,
+        monitorujemy stan środowiska i zabytków, zabieramy głos w konsultacjach dotyczących
+        naszej okolicy i budujemy markę „Dolina Agatowa” jako wyjątkowego miejsca na mapie
+        Dolnego Śląska.
+      </p>
+    </div>
+
+    <div class="filary">
+      {
+        filary.map((f) => (
+          <article class="filar">
+            <h3>{f.tytul}</h3>
+            <p>{f.opis}</p>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="zarzad">
+      <h3>Zarząd stowarzyszenia</h3>
+      <ul>
+        {
+          zarzad.map((z) => (
+            <li>
+              <strong>{z.imie}</strong>
+              <span>{z.funkcja}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .intro {
+    max-width: 44rem;
+    font-size: 1.06rem;
+  }
+
+  .filary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+
+  .filar {
+    background: #fff;
+    border: 1px solid var(--krem-cien);
+    border-top: 3px solid var(--bursztyn);
+    border-radius: 0.6rem;
+    padding: 1.4rem 1.5rem;
+    box-shadow: 0 8px 24px rgb(35 48 63 / 0.05);
+  }
+
+  .filar:nth-child(2) {
+    border-top-color: var(--turkus);
+  }
+
+  .filar:nth-child(3) {
+    border-top-color: var(--rdza);
+  }
+
+  .filar:nth-child(4) {
+    border-top-color: var(--granat);
+  }
+
+  .filar h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.12rem;
+  }
+
+  .filar p {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--atrament-mute);
+  }
+
+  .zarzad {
+    margin-top: 3rem;
+  }
+
+  .zarzad h3 {
+    font-size: 1.2rem;
+  }
+
+  .zarzad ul {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.75rem 1.5rem;
+  }
+
+  .zarzad li {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0.9rem;
+    border-left: 3px solid var(--krem-cien);
+  }
+
+  .zarzad span {
+    font-size: 0.88rem;
+    color: var(--atrament-mute);
+  }
+</style>

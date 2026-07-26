@@ -1,0 +1,16 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# macOS
+.DS_Store
+
+# env
+.env
+.env.*
+
+# dokumenty z danymi osobowymi — nie publikować w repo
+docs/zaświadczenie o wpisie.pdf
