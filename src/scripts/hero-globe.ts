@@ -14,7 +14,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 const PLOCZKI: LngLatLike = [15.5328, 51.0825];
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const FINAL_ZOOM = 11.5; // od ~11 styl pokazuje nazwy wsi — pineska ma być podpisana przez mapę
-const START_ZOOM = 3.4; // start od razu nad Polską — krótki zoom zamiast lotu przez pół świata
+const START_ZOOM = 1.5; // glob w kosmosie — widoczny OD RAZU, cache trasy grzeje się w tle
+const START_CENTER: LngLatLike = [-14, 38]; // Atlantyk, Europa wchodzi na horyzont
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -92,8 +93,8 @@ function createMap(mapDiv: HTMLElement, interactive: boolean, zoom: number, cent
     interactive,
     attributionControl: false,
     canvasContextAttributes: { alpha: true },
-    // płynność > ostrość: na Retinie malujemy maks. 1.5x pikseli (Safari tego wymaga)
-    pixelRatio: Math.min(window.devicePixelRatio, 1.5),
+    // płynność > ostrość: na Retinie malujemy maks. 1.25x pikseli (Safari tego wymaga)
+    pixelRatio: Math.min(window.devicePixelRatio, 1.25),
     // cache mieści całą drabinkę preloadu trasy lotu — nic nie wypada i nie doczytuje się w locie
     maxTileCacheSize: 512,
   });
@@ -167,11 +168,79 @@ function showFinal(els: Els, existingMap?: MapLibreMap): void {
   }
 }
 
+/**
+ * Cichy podgrzewacz cache'u: drugi, niewidoczny map przelatuje drabinką przez
+ * zoomy trasy — kafelki lądują w HTTP-cache przeglądarki, skąd widoczna mapa
+ * bierze je potem błyskawicznie. Dzieje się to, GDY użytkownik ogląda glob.
+ */
+function warmCorridor(els: Els): Promise<void> {
+  return new Promise((resolve) => {
+    const done = window.setTimeout(resolve, 3000); // twardy limit — nie blokujemy intro
+    try {
+      const div = document.createElement('div');
+      div.style.cssText = `position:fixed;left:-99999px;top:0;width:${els.stage.clientWidth}px;height:${els.stage.clientHeight}px;`;
+      document.body.appendChild(div);
+      const warm = new MapLibreMap({
+        container: div,
+        style: MAP_STYLE,
+        center: PLOCZKI,
+        zoom: FINAL_ZOOM,
+        interactive: false,
+        attributionControl: false,
+        pixelRatio: 1,
+        maxTileCacheSize: 16,
+      });
+      const cleanup = () => {
+        window.clearTimeout(done);
+        try {
+          warm.remove();
+          div.remove();
+        } catch {
+          /* posprzątane */
+        }
+        resolve();
+      };
+      warm.on('error', () => {
+        /* pojedyncze błędy kafelków nie przerywają grzania */
+      });
+      warm.on('style.load', () => {
+        warm.addSource('orto-s2', {
+          type: 'raster',
+          tiles: [
+            'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2018_3857/default/g/{z}/{y}/{x}.jpg',
+          ],
+          tileSize: 256,
+          maxzoom: 14,
+        });
+        warm.addLayer({ id: 'orto-s2', type: 'raster', source: 'orto-s2' });
+        const ladder = [FINAL_ZOOM, 9.4, 7.4, 5.4, 3.4];
+        let i = 0;
+        const step = () => {
+          if (i >= ladder.length) {
+            cleanup();
+            return;
+          }
+          warm.jumpTo({ center: PLOCZKI, zoom: ladder[i]! });
+          i += 1;
+          const t = window.setTimeout(step, 650);
+          warm.once('idle', () => {
+            window.clearTimeout(t);
+            step();
+          });
+        };
+        step();
+      });
+    } catch {
+      window.clearTimeout(done);
+      resolve();
+    }
+  });
+}
+
 function runIntro(els: Els): void {
-  // start od FINALNEGO widoku wsi (niewidocznie, pod gwiazdami) — kafelki lądowania
-  // wchodzą do cache'u, więc dolot kończy się ostrym obrazem bez doczytywania
-  const map = createMap(els.mapDiv, false, FINAL_ZOOM, PLOCZKI);
-  map.setPadding({ top: 0, left: 0, right: 0, bottom: landingPadding(els) });
+  // glob widoczny od razu — kafelki niskich zoomów są lekkie i wchodzą natychmiast
+  const map = createMap(els.mapDiv, false, START_ZOOM, START_CENTER);
+  map.setPadding({ top: 0, left: 0, right: 0, bottom: 0 });
   if (import.meta.env.DEV) (window as unknown as { __heroMap?: MapLibreMap }).__heroMap = map;
 
   let finished = false;
@@ -202,7 +271,7 @@ function runIntro(els: Els): void {
   });
 
   map.on('style.load', () => {
-    // zwykły mercator — projekcja kulista dławiła Safari, a przy tym kadrze nie robi różnicy
+    map.setProjection({ type: 'globe' });
 
     // JEDNA warstwa ortofoto od orbity do wsi: Sentinel-2 cloudless (10 m).
     // Wchodzi POD napisy stylu (beforeId), więc podpisy miejscowości zostają.
@@ -225,30 +294,9 @@ function runIntro(els: Els): void {
       }
     }
     void addPolandOutline(map);
-    // mapa pozostaje niewidoczna do końca preloadu — odsłania ją dopiero begin()
+    // glob od razu na ekran
+    els.mapDiv.style.opacity = '1';
 
-    // start dopiero, gdy karta jest widoczna — w tle animacja by przeskoczyła
-    const begin = () => {
-      // widok Polski (trasa w cache'u), fade-in mapy i po chwili jeden krótki zjazd
-      map.jumpTo({ center: PLOCZKI, zoom: START_ZOOM });
-      els.mapDiv.style.opacity = '1';
-      window.setTimeout(() => {
-        if (finished) return;
-        map.flyTo({
-          center: PLOCZKI,
-          zoom: FINAL_ZOOM,
-          duration: 2400,
-          curve: 1.25,
-          padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
-          essential: true,
-        });
-        map.once('moveend', () => {
-          if (finished) return;
-          addPin(map, els.mapDiv);
-          window.setTimeout(() => finish(false), 150);
-        });
-      }, 550);
-    };
     const whenVisible = (fn: () => void) => {
       if (document.visibilityState === 'visible') {
         fn();
@@ -262,31 +310,30 @@ function runIntro(els: Els): void {
       };
       document.addEventListener('visibilitychange', onVisible);
     };
-    // Preload KORYTARZA lotu: po ciemku schodzimy drabinką przez pośrednie zoomy,
-    // żeby każdy poziom trasy siedział w cache'u — w locie nic się nie doczytuje.
-    const idleOnce = (cap: number) =>
-      new Promise<void>((resolve) => {
-        const t = window.setTimeout(resolve, cap);
-        map.once('idle', () => {
-          window.clearTimeout(t);
-          resolve();
+
+    whenVisible(() => {
+      if (finished) return;
+      // glob powoli dryfuje ku Europie, a W TYM CZASIE grzeje się cache trasy
+      map.easeTo({ center: [0, 44], zoom: START_ZOOM + 0.3, duration: 2600, easing: (t) => t });
+      const warmed = warmCorridor(els);
+      const minimumGlobeTime = new Promise<void>((r) => window.setTimeout(r, 2400));
+      void Promise.all([warmed, minimumGlobeTime]).then(() => {
+        if (finished) return;
+        map.flyTo({
+          center: PLOCZKI,
+          zoom: FINAL_ZOOM,
+          duration: 3000,
+          curve: 1.38,
+          padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
+          essential: true,
+        });
+        map.once('moveend', () => {
+          if (finished) return;
+          addPin(map, els.mapDiv);
+          window.setTimeout(() => finish(false), 150);
         });
       });
-    const ladder: { center: LngLatLike; zoom: number }[] = [
-      { center: PLOCZKI, zoom: FINAL_ZOOM },
-      { center: PLOCZKI, zoom: 9.4 },
-      { center: PLOCZKI, zoom: 7.4 },
-      { center: PLOCZKI, zoom: 5.4 },
-      { center: PLOCZKI, zoom: START_ZOOM },
-    ];
-    void (async () => {
-      for (const step of ladder) {
-        if (finished) return;
-        map.jumpTo(step);
-        await idleOnce(700);
-      }
-      if (!finished) whenVisible(begin);
-    })();
+    });
   });
 }
 
