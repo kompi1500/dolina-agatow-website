@@ -97,28 +97,14 @@
       visibility 1.4s;
   }
 
-  /* po wylądowaniu na jasnej mapie: tytuł schodzi w dół i ciemnieje, żeby był czytelny */
+  /* po wylądowaniu tytuł schodzi w dolną część — na ortofoto zostaje jasny */
   .hero-stage.done + .hero-overlay {
     justify-content: flex-end;
     padding-bottom: clamp(3rem, 10vh, 7rem);
-    text-shadow: 0 1px 18px rgb(250 246 239 / 0.75);
-  }
-
-  .hero-stage.done + .hero-overlay h1 {
-    color: var(--heban);
-  }
-
-  .hero-stage.done + .hero-overlay .hero-sub {
-    color: var(--atrament);
-  }
-
-  .hero-stage.done + .hero-overlay .hero-kicker {
-    color: var(--rdza);
   }
 
   .hero-stage.done + .hero-overlay .hero-scroll {
     margin-top: 1.5rem;
-    border-color: rgb(46 42 34 / 0.45);
   }
 
   .hero-kicker {

@@ -14,7 +14,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 const PLOCZKI: LngLatLike = [15.5328, 51.0825];
 const START_CENTER: LngLatLike = [-20, 35]; // Atlantyk, Europa na horyzoncie globu
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
-const FINAL_ZOOM = 10.9;
+const FINAL_ZOOM = 11.5; // od ~11 styl pokazuje nazwy wsi — pineska ma być podpisana przez mapę
 const START_ZOOM = 1.4;
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -125,10 +125,12 @@ async function addPolandOutline(map: MapLibreMap): Promise<void> {
 }
 
 function addPin(map: MapLibreMap): void {
+  // sama kropka — nazwę wsi podpisuje mapa
   const el = document.createElement('div');
   el.className = 'agat-pin';
-  el.innerHTML = `<span class="agat-pin-dot"></span><span class="agat-pin-label">Płóczki Górne — Dolina Agatów</span>`;
-  new Marker({ element: el, anchor: 'bottom' }).setLngLat(PLOCZKI).addTo(map);
+  el.innerHTML = `<span class="agat-pin-dot"></span>`;
+  // anchor bottom: kropka wisi tuż NAD punktem, więc nie zasłania podpisu wsi z mapy
+  new Marker({ element: el, anchor: 'bottom', offset: [0, -7] }).setLngLat(PLOCZKI).addTo(map);
 }
 
 function enableInteraction(map: MapLibreMap): void {
@@ -195,9 +197,23 @@ function runIntro(els: Els): void {
 
   map.on('style.load', () => {
     map.setProjection({ type: 'globe' });
-    // fotorealistyczna Ziemia (NASA Blue Marble, domena publiczna) na starcie;
-    // wygasza się przy zniżaniu, odsłaniając mapę wektorową pod spodem
-    map.addSource('ortofoto', {
+
+    // Ortofoto do samego końca: Sentinel-2 (10 m) jako baza, Blue Marble na wierzchu
+    // dla ładnego kosmosu (wygasza się przy zniżaniu — satelita przechodzi w satelitę).
+    // Obie warstwy wchodzą POD napisy stylu (beforeId), więc podpisy miejscowości zostają.
+    const firstSymbol = (map.getStyle().layers ?? []).find((l) => l.type === 'symbol')?.id;
+    map.addSource('orto-s2', {
+      type: 'raster',
+      tiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2018_3857/default/g/{z}/{y}/{x}.jpg'],
+      tileSize: 256,
+      maxzoom: 14,
+      attribution: 'Sentinel-2 cloudless 2018 — EOX (CC BY 4.0)',
+    });
+    map.addLayer(
+      { id: 'orto-s2', type: 'raster', source: 'orto-s2', paint: { 'raster-fade-duration': 150 } },
+      firstSymbol,
+    );
+    map.addSource('orto-bm', {
       type: 'raster',
       tiles: [
         'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
@@ -206,15 +222,18 @@ function runIntro(els: Els): void {
       maxzoom: 8,
       attribution: 'NASA GIBS / Blue Marble',
     });
-    map.addLayer({
-      id: 'ortofoto',
-      type: 'raster',
-      source: 'ortofoto',
-      paint: {
-        'raster-opacity': ['interpolate', ['linear'], ['zoom'], 5.2, 1, 7.2, 0],
-        'raster-fade-duration': 0,
+    map.addLayer(
+      {
+        id: 'orto-bm',
+        type: 'raster',
+        source: 'orto-bm',
+        paint: {
+          'raster-opacity': ['interpolate', ['linear'], ['zoom'], 5.2, 1, 7.2, 0],
+          'raster-fade-duration': 0,
+        },
       },
-    });
+      firstSymbol,
+    );
     // napisy dopiero po zejściu z orbity — na fotorealistycznym globie tylko przeszkadzają
     for (const layer of map.getStyle().layers ?? []) {
       if (layer.type === 'symbol') {
@@ -227,20 +246,20 @@ function runIntro(els: Els): void {
     // start dopiero, gdy karta jest widoczna — w tle animacja by przeskoczyła
     const begin = () => {
       // faza 1: powolny obrót globu ku Europie
-      map.easeTo({ center: [2, 44], zoom: START_ZOOM + 0.25, duration: 2600, easing: (t) => t });
-      // faza 2: jeden ciągły przelot z orbity na Płóczki Górne
+      map.easeTo({ center: [2, 44], zoom: START_ZOOM + 0.25, duration: 1900, easing: (t) => t });
+      // faza 2: jeden ciągły przelot z orbity na Płóczki Górne — nisko już szybko
       window.setTimeout(() => {
         if (finished) return;
-        map.flyTo({ center: PLOCZKI, zoom: FINAL_ZOOM, duration: 6400, curve: 1.32, essential: true });
+        map.flyTo({ center: PLOCZKI, zoom: FINAL_ZOOM, duration: 4300, curve: 1.35, essential: true });
         map.once('moveend', () => {
           if (finished) return;
           if (!els.mapDiv.dataset.pinned) {
             els.mapDiv.dataset.pinned = '1';
             addPin(map);
           }
-          window.setTimeout(() => finish(false), 350);
+          window.setTimeout(() => finish(false), 150);
         });
-      }, 2650);
+      }, 1950);
     };
     if (document.visibilityState === 'visible') {
       begin();

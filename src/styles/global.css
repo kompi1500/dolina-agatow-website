@@ -101,25 +101,8 @@ a:hover {
 
 /* pineska na mapie hero (tworzona w JS — style muszą być globalne) */
 .agat-pin {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  transform: translateY(-4px);
-}
-
-.agat-pin-label {
-  order: -1;
-  background: rgb(250 246 239 / 0.94);
-  color: var(--atrament);
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  font-weight: 650;
-  padding: 0.35rem 0.85rem;
-  border: 1px solid rgb(217 131 36 / 0.45);
-  border-radius: 999px;
-  white-space: nowrap;
-  box-shadow: 0 4px 14px rgb(36 28 18 / 0.25);
+  display: grid;
+  place-items: center;
 }
 
 .agat-pin-dot {
