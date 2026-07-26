@@ -99,36 +99,6 @@ a:hover {
   margin: 0 0 1.25rem;
 }
 
-/* pineska na mapie hero (tworzona w JS — style muszą być globalne) */
-.agat-pin {
-  display: grid;
-  place-items: center;
-}
-
-.agat-pin-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--bursztyn);
-  border: 3px solid var(--krem);
-  box-shadow:
-    0 0 0 2px var(--rdza),
-    0 4px 12px rgb(36 28 18 / 0.35);
-  animation: pin-drop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
-}
-
-@keyframes pin-drop {
-  from {
-    transform: translateY(-18px) scale(0.6);
-    opacity: 0;
-  }
-
-  to {
-    transform: none;
-    opacity: 1;
-  }
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;

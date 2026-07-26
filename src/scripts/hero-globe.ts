@@ -8,7 +8,7 @@
  */
 import { mesh as topoMesh } from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
-import { Map as MapLibreMap, Marker, type LngLatLike } from 'maplibre-gl';
+import { Map as MapLibreMap, type LngLatLike } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const PLOCZKI: LngLatLike = [15.5328, 51.0825];
@@ -124,15 +124,6 @@ async function addPolandOutline(map: MapLibreMap): Promise<void> {
   }
 }
 
-function addPin(map: MapLibreMap): void {
-  // sama kropka — nazwę wsi podpisuje mapa
-  const el = document.createElement('div');
-  el.className = 'agat-pin';
-  el.innerHTML = `<span class="agat-pin-dot"></span>`;
-  // anchor bottom: kropka wisi tuż NAD punktem, więc nie zasłania podpisu wsi z mapy
-  new Marker({ element: el, anchor: 'bottom', offset: [0, -7] }).setLngLat(PLOCZKI).addTo(map);
-}
-
 function enableInteraction(map: MapLibreMap): void {
   // scrollZoom zostaje wyłączony, żeby mapa nie więziła scrolla strony
   map.dragPan.enable();
@@ -147,17 +138,12 @@ function showFinal(els: Els, existingMap?: MapLibreMap): void {
   els.skip.classList.remove('visible');
   els.mapDiv.style.opacity = '1';
   try {
-    let map = existingMap;
-    if (!map) {
-      map = createMap(els.mapDiv, true, FINAL_ZOOM, PLOCZKI);
+    if (!existingMap) {
+      createMap(els.mapDiv, true, FINAL_ZOOM, PLOCZKI);
     } else {
-      map.stop();
-      map.jumpTo({ center: PLOCZKI, zoom: FINAL_ZOOM });
-      enableInteraction(map);
-    }
-    if (!els.mapDiv.dataset.pinned) {
-      els.mapDiv.dataset.pinned = '1';
-      addPin(map);
+      existingMap.stop();
+      existingMap.jumpTo({ center: PLOCZKI, zoom: FINAL_ZOOM });
+      enableInteraction(existingMap);
     }
   } catch {
     /* mapa niedostępna (offline) — zostaje gwiezdne tło */
@@ -198,9 +184,8 @@ function runIntro(els: Els): void {
   map.on('style.load', () => {
     map.setProjection({ type: 'globe' });
 
-    // Ortofoto do samego końca: Sentinel-2 (10 m) jako baza, Blue Marble na wierzchu
-    // dla ładnego kosmosu (wygasza się przy zniżaniu — satelita przechodzi w satelitę).
-    // Obie warstwy wchodzą POD napisy stylu (beforeId), więc podpisy miejscowości zostają.
+    // JEDNA warstwa ortofoto od orbity do wsi: Sentinel-2 cloudless (10 m).
+    // Wchodzi POD napisy stylu (beforeId), więc podpisy miejscowości zostają.
     const firstSymbol = (map.getStyle().layers ?? []).find((l) => l.type === 'symbol')?.id;
     map.addSource('orto-s2', {
       type: 'raster',
@@ -211,27 +196,6 @@ function runIntro(els: Els): void {
     });
     map.addLayer(
       { id: 'orto-s2', type: 'raster', source: 'orto-s2', paint: { 'raster-fade-duration': 150 } },
-      firstSymbol,
-    );
-    map.addSource('orto-bm', {
-      type: 'raster',
-      tiles: [
-        'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
-      ],
-      tileSize: 256,
-      maxzoom: 8,
-      attribution: 'NASA GIBS / Blue Marble',
-    });
-    map.addLayer(
-      {
-        id: 'orto-bm',
-        type: 'raster',
-        source: 'orto-bm',
-        paint: {
-          'raster-opacity': ['interpolate', ['linear'], ['zoom'], 5.2, 1, 7.2, 0],
-          'raster-fade-duration': 0,
-        },
-      },
       firstSymbol,
     );
     // napisy dopiero po zejściu z orbity — na fotorealistycznym globie tylko przeszkadzają
@@ -245,21 +209,17 @@ function runIntro(els: Els): void {
 
     // start dopiero, gdy karta jest widoczna — w tle animacja by przeskoczyła
     const begin = () => {
-      // faza 1: powolny obrót globu ku Europie
-      map.easeTo({ center: [2, 44], zoom: START_ZOOM + 0.25, duration: 1900, easing: (t) => t });
-      // faza 2: jeden ciągły przelot z orbity na Płóczki Górne — nisko już szybko
+      // faza 1: krótki obrót globu ku Europie
+      map.easeTo({ center: [2, 44], zoom: START_ZOOM + 0.25, duration: 1200, easing: (t) => t });
+      // faza 2: jeden ciągły, żwawy przelot z orbity na Płóczki Górne
       window.setTimeout(() => {
         if (finished) return;
-        map.flyTo({ center: PLOCZKI, zoom: FINAL_ZOOM, duration: 4300, curve: 1.35, essential: true });
+        map.flyTo({ center: PLOCZKI, zoom: FINAL_ZOOM, duration: 3400, curve: 1.4, essential: true });
         map.once('moveend', () => {
           if (finished) return;
-          if (!els.mapDiv.dataset.pinned) {
-            els.mapDiv.dataset.pinned = '1';
-            addPin(map);
-          }
           window.setTimeout(() => finish(false), 150);
         });
-      }, 1950);
+      }, 1250);
     };
     if (document.visibilityState === 'visible') {
       begin();
