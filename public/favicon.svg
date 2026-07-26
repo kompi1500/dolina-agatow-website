@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- przekrój agatu: nieregularne koncentryczne słoje w palecie strony -->
+  <path d="M32 3C15 5 4 16 4 32s12 27 28 29 28-11 28-27S49 1 32 3Z" fill="#101a2b"/>
+  <path d="M32 9c-13 2-22 10-22 23s9 21 22 22 22-8 22-21S45 7 32 9Z" fill="#a4501c"/>
+  <path d="M32 15c-9 1-16 7-16 17s7 15 16 16 16-6 16-15S41 14 32 15Z" fill="#d98324"/>
+  <path d="M32 21c-6 1-11 5-11 11s5 10 11 11 11-4 11-10-5-13-11-12Z" fill="#e8a13c"/>
+  <path d="M32 27c-3 0-6 2-6 5s3 6 6 6 6-2 6-5-3-6.5-6-6Z" fill="#2a9d8f"/>
+  <circle cx="32" cy="32.5" r="2.5" fill="#faf6ef"/>
+</svg>

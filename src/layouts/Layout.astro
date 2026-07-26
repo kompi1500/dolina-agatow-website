@@ -25,6 +25,15 @@ const {
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pl_PL" />
+    <meta
+      property="og:image"
+      content={new URL(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/images/agat-przekroj.jpg`, Astro.site)}
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/favicon.svg`}
+    />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
   </head>
   <body>

@@ -3,6 +3,42 @@
 // Agaty z Płóczek Górnych, Nagórze, Słotwina, Lwóweckie Lato Agatowe) — źródła w stopce.
 // Galeria: zdjęcia CC z Wikimedia Commons podpinane w public/images/ (atrybucje w stopce).
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// atrybucje autorów i licencji — sekcja „Zdjęcia” w stopce (Footer.astro)
+const zdjecia = [
+  {
+    plik: 'agat-przekroj.jpg',
+    alt: 'Przekrój agatu z Płóczek Górnych o koncentrycznych warstwach chalcedonu',
+    podpis: 'Agat z Płóczek Górnych',
+  },
+  {
+    plik: 'agat-darski.jpg',
+    alt: 'Kolorowy agat znaleziony w Płóczkach Górnych, Góry Kaczawskie',
+    podpis: 'Agat z okolic Płóczek',
+  },
+  {
+    plik: 'ploczki-gorne.jpg',
+    alt: 'Zabudowania wsi Płóczki Górne wśród pól i wzgórz',
+    podpis: 'Płóczki Górne',
+  },
+  {
+    plik: 'nagorze-pogorze.jpg',
+    alt: 'Krajobraz Pogórza Izerskiego w okolicach wsi Nagórze',
+    podpis: 'Pogórze Izerskie pod Nagórzem',
+  },
+  {
+    plik: 'slotwina.jpg',
+    alt: 'Rzeka Słotwina przepływająca przez Płóczki Górne',
+    podpis: 'Słotwina w Płóczkach Górnych',
+  },
+  {
+    plik: 'lwowek-mury.jpg',
+    alt: 'Średniowieczne mury obronne Lwówka Śląskiego',
+    podpis: 'Mury obronne Lwówka Śląskiego',
+  },
+];
+
 const ciekawostki = [
   {
     liczba: '1217',
@@ -59,11 +95,14 @@ const ciekawostki = [
     </ul>
 
     <div class="galeria" id="galeria">
-      <!-- Placeholdery — podmieniane na zdjęcia CC z Wikimedia Commons -->
-      <figure class="ph ph-agat"><figcaption>Agat z Płóczek Górnych</figcaption></figure>
-      <figure class="ph ph-pola"><figcaption>Pola Agatowe pod Lipieniem</figcaption></figure>
-      <figure class="ph ph-wies"><figcaption>Płóczki Górne</figcaption></figure>
-      <figure class="ph ph-nagorze"><figcaption>Okolice Nagórza</figcaption></figure>
+      {
+        zdjecia.map((z) => (
+          <figure class="foto">
+            <img src={`${base}/images/${z.plik}`} alt={z.alt} loading="lazy" decoding="async" />
+            <figcaption>{z.podpis}</figcaption>
+          </figure>
+        ))
+      }
     </div>
   </div>
 </section>
@@ -120,38 +159,32 @@ const ciekawostki = [
     margin-top: 2.75rem;
   }
 
-  .ph {
+  .foto {
     margin: 0;
     aspect-ratio: 4 / 3;
     border-radius: 0.6rem;
-    display: flex;
-    align-items: flex-end;
     overflow: hidden;
     position: relative;
+    background: var(--granat);
   }
 
-  .ph figcaption {
+  .foto img {
     width: 100%;
-    padding: 0.6rem 0.9rem;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .foto:hover img {
+    transform: scale(1.04);
+  }
+
+  .foto figcaption {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 1.4rem 0.9rem 0.6rem;
     font-size: 0.85rem;
     color: var(--krem);
-    background: linear-gradient(transparent, rgb(5 7 15 / 0.65));
-  }
-
-  /* tymczasowe tła-placeholdery w klimacie agatowym */
-  .ph-agat {
-    background: radial-gradient(circle at 40% 40%, #e8a13c, #a4501c 45%, #101a2b 100%);
-  }
-
-  .ph-pola {
-    background: radial-gradient(circle at 60% 30%, #2a9d8f, #1f7468 50%, #101a2b 100%);
-  }
-
-  .ph-wies {
-    background: radial-gradient(circle at 30% 60%, #b7c9a5, #55705a 55%, #101a2b 100%);
-  }
-
-  .ph-nagorze {
-    background: radial-gradient(circle at 70% 50%, #c9a5b7, #705a67 55%, #101a2b 100%);
+    background: linear-gradient(transparent, rgb(5 7 15 / 0.72));
   }
 </style>
