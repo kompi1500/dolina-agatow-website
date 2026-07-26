@@ -241,6 +241,10 @@ function runIntro(els: Els): void {
   // glob widoczny od razu — kafelki niskich zoomów są lekkie i wchodzą natychmiast
   const map = createMap(els.mapDiv, false, START_ZOOM, START_CENTER);
   map.setPadding({ top: 0, left: 0, right: 0, bottom: 0 });
+  // grzanie cache'u trasy rusza NATYCHMIAST, równolegle z ładowaniem widocznej mapy;
+  // drabinka idzie od kafelków lądowania w górę, więc finał jest ostry najwcześniej
+  const warmed = warmCorridor(els);
+  void warmed;
   if (import.meta.env.DEV) (window as unknown as { __heroMap?: MapLibreMap }).__heroMap = map;
 
   let finished = false;
@@ -294,8 +298,6 @@ function runIntro(els: Els): void {
       }
     }
     void addPolandOutline(map);
-    // glob od razu na ekran
-    els.mapDiv.style.opacity = '1';
 
     const whenVisible = (fn: () => void) => {
       if (document.visibilityState === 'visible') {
@@ -311,28 +313,38 @@ function runIntro(els: Els): void {
       document.addEventListener('visibilitychange', onVisible);
     };
 
-    whenVisible(() => {
-      if (finished) return;
-      // glob powoli dryfuje ku Europie, a W TYM CZASIE grzeje się cache trasy
-      map.easeTo({ center: [0, 44], zoom: START_ZOOM + 0.3, duration: 2600, easing: (t) => t });
-      const warmed = warmCorridor(els);
-      const minimumGlobeTime = new Promise<void>((r) => window.setTimeout(r, 2400));
-      void Promise.all([warmed, minimumGlobeTime]).then(() => {
+    // glob odsłaniamy dopiero, gdy ORTOFOTO startowego kadru jest wczytane —
+    // żadnej topograficznej wstawki przed satelitą
+    let revealed = false;
+    const reveal = () => {
+      if (finished || revealed) return;
+      revealed = true;
+      els.mapDiv.style.opacity = '1';
+      whenVisible(() => {
         if (finished) return;
-        map.flyTo({
-          center: PLOCZKI,
-          zoom: FINAL_ZOOM,
-          duration: 3000,
-          curve: 1.38,
-          padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
-          essential: true,
-        });
-        map.once('moveend', () => {
+        // krótka chwila na glob i od razu zjazd na Płóczki
+        window.setTimeout(() => {
           if (finished) return;
-          addPin(map, els.mapDiv);
-          window.setTimeout(() => finish(false), 150);
-        });
+          map.flyTo({
+            center: PLOCZKI,
+            zoom: FINAL_ZOOM,
+            duration: 2600,
+            curve: 1.32,
+            padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
+            essential: true,
+          });
+          map.once('moveend', () => {
+            if (finished) return;
+            addPin(map, els.mapDiv);
+            window.setTimeout(() => finish(false), 150);
+          });
+        }, 500);
       });
+    };
+    const revealCap = window.setTimeout(reveal, 2500);
+    map.once('idle', () => {
+      window.clearTimeout(revealCap);
+      reveal();
     });
   });
 }
