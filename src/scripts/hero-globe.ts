@@ -8,7 +8,7 @@
  */
 import { mesh as topoMesh } from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
-import { Map as MapLibreMap, type LngLatLike } from 'maplibre-gl';
+import { Map as MapLibreMap, Marker, type LngLatLike } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const PLOCZKI: LngLatLike = [15.5328, 51.0825];
@@ -124,11 +124,26 @@ async function addPolandOutline(map: MapLibreMap): Promise<void> {
   }
 }
 
+function addPin(map: MapLibreMap, mapDiv: HTMLElement): void {
+  if (mapDiv.dataset.pinned) return;
+  mapDiv.dataset.pinned = '1';
+  // sama kropka, zawieszona tuż NAD punktem — nie zasłania podpisu wsi z mapy
+  const el = document.createElement('div');
+  el.className = 'agat-pin';
+  el.innerHTML = `<span class="agat-pin-dot"></span>`;
+  new Marker({ element: el, anchor: 'bottom', offset: [0, -9] }).setLngLat(PLOCZKI).addTo(map);
+}
+
 function enableInteraction(map: MapLibreMap): void {
   // scrollZoom zostaje wyłączony, żeby mapa nie więziła scrolla strony
   map.dragPan.enable();
   map.touchZoomRotate.enable();
   map.doubleClickZoom.enable();
+}
+
+/** Wieś ma siedzieć w górnej strefie złotego podziału — nad blokiem tytułowym. */
+function landingPadding(els: Els): number {
+  return Math.round(els.stage.clientHeight * 0.26);
 }
 
 /** Stan końcowy bez animacji (fallback i „pomiń intro”). */
@@ -138,13 +153,12 @@ function showFinal(els: Els, existingMap?: MapLibreMap): void {
   els.skip.classList.remove('visible');
   els.mapDiv.style.opacity = '1';
   try {
-    if (!existingMap) {
-      createMap(els.mapDiv, true, FINAL_ZOOM, PLOCZKI);
-    } else {
-      existingMap.stop();
-      existingMap.jumpTo({ center: PLOCZKI, zoom: FINAL_ZOOM });
-      enableInteraction(existingMap);
-    }
+    const map = existingMap ?? createMap(els.mapDiv, true, FINAL_ZOOM, PLOCZKI);
+    map.stop();
+    map.setPadding({ top: 0, left: 0, right: 0, bottom: landingPadding(els) });
+    map.jumpTo({ center: PLOCZKI, zoom: FINAL_ZOOM });
+    if (existingMap) enableInteraction(map);
+    addPin(map, els.mapDiv);
   } catch {
     /* mapa niedostępna (offline) — zostaje gwiezdne tło */
   }
@@ -214,9 +228,17 @@ function runIntro(els: Els): void {
       // faza 2: jeden ciągły, żwawy przelot z orbity na Płóczki Górne
       window.setTimeout(() => {
         if (finished) return;
-        map.flyTo({ center: PLOCZKI, zoom: FINAL_ZOOM, duration: 3400, curve: 1.4, essential: true });
+        map.flyTo({
+          center: PLOCZKI,
+          zoom: FINAL_ZOOM,
+          duration: 3400,
+          curve: 1.4,
+          padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
+          essential: true,
+        });
         map.once('moveend', () => {
           if (finished) return;
+          addPin(map, els.mapDiv);
           window.setTimeout(() => finish(false), 150);
         });
       }, 1250);
