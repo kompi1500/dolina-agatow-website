@@ -8,10 +8,12 @@
  */
 import { mesh as topoMesh } from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
-import { Map as MapLibreMap, Marker, type LngLatLike } from 'maplibre-gl';
+import { Map as MapLibreMap, Marker, NavigationControl, type LngLatLike } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const PLOCZKI: LngLatLike = [15.5328, 51.0825];
+// siedziba stowarzyszenia: Płóczki Górne 4A — oficjalny punkt adresowy (GUGiK, PRG)
+const SIEDZIBA: LngLatLike = [15.52605, 51.064831];
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const FINAL_ZOOM = 11.5; // od ~11 styl pokazuje nazwy wsi — pineska ma być podpisana przez mapę
 const START_ZOOM = 1.5; // glob w kosmosie — widoczny OD RAZU, cache trasy grzeje się w tle
@@ -93,11 +95,19 @@ function createMap(mapDiv: HTMLElement, interactive: boolean, zoom: number, cent
     interactive,
     attributionControl: false,
     canvasContextAttributes: { alpha: true },
-    // płynność > ostrość: na Retinie malujemy maks. 1.25x pikseli (Safari tego wymaga)
-    pixelRatio: Math.min(window.devicePixelRatio, 1.25),
+    // ostry obraz w spoczynku; na czas animacji schodzimy do 1.0 (setPixelRatio)
+    pixelRatio: Math.min(window.devicePixelRatio, 1.5),
+    // zero crossfade'ów kafelków i etykiet — mniej blendowania na klatkę
+    fadeDuration: 0,
     // cache mieści całą drabinkę preloadu trasy lotu — nic nie wypada i nie doczytuje się w locie
     maxTileCacheSize: 512,
   });
+}
+
+/** Rozdzielczość renderu: 1.0 na czas animacji (płynność), 1.5 w spoczynku (ostrość). */
+function setRenderScale(map: MapLibreMap, moving: boolean): void {
+  const target = moving ? 1 : Math.min(window.devicePixelRatio, 1.5);
+  (map as unknown as { setPixelRatio?: (r: number) => void }).setPixelRatio?.(target);
 }
 
 /** Obrys Polski (bursztyn) rysowany bezpośrednio na globie/mapie. */
@@ -131,18 +141,26 @@ async function addPolandOutline(map: MapLibreMap): Promise<void> {
 function addPin(map: MapLibreMap, mapDiv: HTMLElement): void {
   if (mapDiv.dataset.pinned) return;
   mapDiv.dataset.pinned = '1';
-  // sama kropka, zawieszona tuż NAD punktem — nie zasłania podpisu wsi z mapy
+  // kropka dokładnie na adresie siedziby (Płóczki Górne 4A)
   const el = document.createElement('div');
   el.className = 'agat-pin';
   el.innerHTML = `<span class="agat-pin-dot"></span>`;
-  new Marker({ element: el, anchor: 'bottom', offset: [0, -9] }).setLngLat(PLOCZKI).addTo(map);
+  new Marker({ element: el, anchor: 'center' }).setLngLat(SIEDZIBA).addTo(map);
 }
 
 function enableInteraction(map: MapLibreMap): void {
-  // scrollZoom zostaje wyłączony, żeby mapa nie więziła scrolla strony
+  setRenderScale(map, false);
+  // scrollZoom zostaje wyłączony, żeby mapa nie więziła scrolla strony —
+  // zoomowanie przyciskami nawigacji, przeciąganie i pinch normalnie
   map.dragPan.enable();
   map.touchZoomRotate.enable();
   map.doubleClickZoom.enable();
+  map.scrollZoom.disable();
+  const container = map.getContainer();
+  if (!container.dataset.nav) {
+    container.dataset.nav = '1';
+    map.addControl(new NavigationControl({ showCompass: false }), 'bottom-right');
+  }
 }
 
 /** Wieś ma siedzieć w górnej strefie złotego podziału — nad blokiem tytułowym. */
@@ -157,11 +175,11 @@ function showFinal(els: Els, existingMap?: MapLibreMap): void {
   els.skip.classList.remove('visible');
   els.mapDiv.style.opacity = '1';
   try {
-    const map = existingMap ?? createMap(els.mapDiv, true, FINAL_ZOOM, PLOCZKI);
+    const map = existingMap ?? createMap(els.mapDiv, true, FINAL_ZOOM, SIEDZIBA);
     map.stop();
     map.setPadding({ top: 0, left: 0, right: 0, bottom: landingPadding(els) });
-    map.jumpTo({ center: PLOCZKI, zoom: FINAL_ZOOM });
-    if (existingMap) enableInteraction(map);
+    map.jumpTo({ center: SIEDZIBA, zoom: FINAL_ZOOM });
+    enableInteraction(map);
     addPin(map, els.mapDiv);
   } catch {
     /* mapa niedostępna (offline) — zostaje gwiezdne tło */
@@ -183,7 +201,7 @@ function warmCorridor(els: Els): Promise<void> {
       const warm = new MapLibreMap({
         container: div,
         style: MAP_STYLE,
-        center: PLOCZKI,
+        center: SIEDZIBA,
         zoom: FINAL_ZOOM,
         interactive: false,
         attributionControl: false,
@@ -220,7 +238,7 @@ function warmCorridor(els: Els): Promise<void> {
             cleanup();
             return;
           }
-          warm.jumpTo({ center: PLOCZKI, zoom: ladder[i]! });
+          warm.jumpTo({ center: SIEDZIBA, zoom: ladder[i]! });
           i += 1;
           const t = window.setTimeout(step, 650);
           warm.once('idle', () => {
@@ -297,6 +315,14 @@ function runIntro(els: Els): void {
         map.setLayerZoomRange(layer.id, Math.max(layer.minzoom ?? 0, 6.8), layer.maxzoom ?? 24);
       }
     }
+    // warstwy wektorowe schowane POD ortofoto i tak nie są widoczne — wyłączamy je,
+    // żeby nie malowały się na darmo pod spodem (mniej pracy GPU na klatkę)
+    for (const layer of map.getStyle().layers ?? []) {
+      if (layer.id === 'orto-s2') break;
+      if (layer.type === 'fill' || layer.type === 'line' || layer.type === 'fill-extrusion') {
+        map.setLayoutProperty(layer.id, 'visibility', 'none');
+      }
+    }
     void addPolandOutline(map);
 
     const whenVisible = (fn: () => void) => {
@@ -325,8 +351,9 @@ function runIntro(els: Els): void {
         // krótka chwila na glob i od razu zjazd na Płóczki
         window.setTimeout(() => {
           if (finished) return;
+          setRenderScale(map, true); // na czas lotu mniej pikseli = stabilny klatkarz
           map.flyTo({
-            center: PLOCZKI,
+            center: SIEDZIBA,
             zoom: FINAL_ZOOM,
             duration: 2600,
             curve: 1.32,
