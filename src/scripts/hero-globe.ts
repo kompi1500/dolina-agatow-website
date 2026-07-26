@@ -214,17 +214,19 @@ async function runIntro(els: Els): Promise<void> {
   globe.add(bordersFromTopo(topo, (a, b) => isPL(a) || isPL(b), 0xe8a13c, 0.95, 1.003));
   scene.add(globe);
 
-  // orientacje: start nad Atlantykiem (Europa na horyzoncie), koniec — Płóczki Górne
-  // na wprost kamery; obie liczone tak samo, więc slerp idzie po ładnym łuku
-  const toCamera = new THREE.Vector3(0, 0, 1);
-  const endQ = new THREE.Quaternion().setFromUnitVectors(
-    latLonToVector3(PLOCZKI.lat, PLOCZKI.lon, 1).normalize(),
-    toCamera,
-  );
-  const startQ = new THREE.Quaternion().setFromUnitVectors(
-    latLonToVector3(18, -38, 1).normalize(),
-    toCamera,
-  );
+  // Orientacja globu dla punktu (lat, lon): punkt na wprost kamery (+z),
+  // lokalna północ w górę ekranu (+y) — bez przechyłu (roll), północ zawsze u góry.
+  const orientForPoint = (lat: number, lon: number): THREE.Quaternion => {
+    const p = latLonToVector3(lat, lon, 1).normalize();
+    const north = new THREE.Vector3(0, 1, 0);
+    const northTangent = north.clone().addScaledVector(p, -p.dot(north)).normalize();
+    const east = new THREE.Vector3().crossVectors(northTangent, p);
+    const basis = new THREE.Matrix4().makeBasis(east, northTangent, p);
+    return new THREE.Quaternion().setFromRotationMatrix(basis).invert();
+  };
+  // start nad Atlantykiem (Europa na horyzoncie), koniec — Płóczki Górne
+  const endQ = orientForPoint(PLOCZKI.lat, PLOCZKI.lon);
+  const startQ = orientForPoint(18, -38);
 
   // mapa czeka pod spodem w kadrze kontynentalnym
   let map: MapLibreMap | undefined;
