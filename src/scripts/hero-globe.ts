@@ -93,6 +93,10 @@ function createMap(mapDiv: HTMLElement, interactive: boolean, zoom: number, cent
     interactive,
     attributionControl: false,
     canvasContextAttributes: { alpha: true },
+    // płynność > ostrość: na Retinie malujemy maks. 1.5x pikseli (Safari tego wymaga)
+    pixelRatio: Math.min(window.devicePixelRatio, 1.5),
+    // cache mieści całą drabinkę preloadu trasy lotu — nic nie wypada i nie doczytuje się w locie
+    maxTileCacheSize: 512,
   });
 }
 
@@ -226,19 +230,17 @@ function runIntro(els: Els): void {
 
     // start dopiero, gdy karta jest widoczna — w tle animacja by przeskoczyła
     const begin = () => {
-      // przeskok na orbitę (finał już w cache'u) i dopiero teraz pokazujemy mapę
+      // przeskok na orbitę (cała trasa już w cache'u) i dopiero teraz pokazujemy mapę
       map.jumpTo({ center: START_CENTER, zoom: START_ZOOM });
       els.mapDiv.style.opacity = '1';
-      // faza 1: krótki obrót globu ku Europie
-      map.easeTo({ center: [2, 44], zoom: START_ZOOM + 0.25, duration: 900, easing: (t) => t });
-      // faza 2: jeden ciągły, żwawy przelot z orbity na Płóczki Górne
+      // jeden ciągły przelot — flyTo sam obraca glob znad Atlantyku nad Polskę
       window.setTimeout(() => {
         if (finished) return;
         map.flyTo({
           center: PLOCZKI,
           zoom: FINAL_ZOOM,
-          duration: 3000,
-          curve: 1.42,
+          duration: 3200,
+          curve: 1.4,
           padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
           essential: true,
         });
@@ -247,7 +249,7 @@ function runIntro(els: Els): void {
           addPin(map, els.mapDiv);
           window.setTimeout(() => finish(false), 150);
         });
-      }, 950);
+      }, 350);
     };
     const whenVisible = (fn: () => void) => {
       if (document.visibilityState === 'visible') {
@@ -262,17 +264,31 @@ function runIntro(els: Els): void {
       };
       document.addEventListener('visibilitychange', onVisible);
     };
-    // czekamy aż kafelki finału się wczytają (max 1.8 s), dopiero wtedy startujemy
-    const preload = new Promise<void>((resolve) => {
-      const t = window.setTimeout(resolve, 1800);
-      map.once('idle', () => {
-        window.clearTimeout(t);
-        resolve();
+    // Preload KORYTARZA lotu: po ciemku schodzimy drabinką przez pośrednie zoomy,
+    // żeby każdy poziom trasy siedział w cache'u — w locie nic się nie doczytuje.
+    const idleOnce = (cap: number) =>
+      new Promise<void>((resolve) => {
+        const t = window.setTimeout(resolve, cap);
+        map.once('idle', () => {
+          window.clearTimeout(t);
+          resolve();
+        });
       });
-    });
-    void preload.then(() => {
+    const ladder: { center: LngLatLike; zoom: number }[] = [
+      { center: PLOCZKI, zoom: FINAL_ZOOM },
+      { center: PLOCZKI, zoom: 9.3 },
+      { center: PLOCZKI, zoom: 7.1 },
+      { center: PLOCZKI, zoom: 4.9 },
+      { center: [8, 46], zoom: 2.7 },
+    ];
+    void (async () => {
+      for (const step of ladder) {
+        if (finished) return;
+        map.jumpTo(step);
+        await idleOnce(900);
+      }
       if (!finished) whenVisible(begin);
-    });
+    })();
   });
 }
 
