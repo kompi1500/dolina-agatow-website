@@ -1,99 +1,134 @@
 ---
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const kroki = [
+  'Porozmawiaj z osobą należącą do stowarzyszenia.',
+  'Wypełnij pisemną deklarację z rekomendacją dwóch członków.',
+  'Zarząd podejmuje uchwałę o przyjęciu nowej osoby.',
+];
 ---
 
-<section class="section dolacz" id="dolacz">
-  <div class="container">
-    <span class="section-label">Dołącz do nas</span>
-    <h2>Dolina rośnie w siłę z każdą osobą</h2>
+<section class="join" id="dolacz" aria-labelledby="join-title">
+  <div class="container join-grid">
+    <div class="join-title">
+      <span class="section-label">Dołącz do nas</span>
+      <h2 id="join-title">Dolina rośnie dzięki ludziom</h2>
+      <p>
+        Członkiem może zostać każda pełnoletnia osoba, której bliski jest los Płóczek
+        Górnych, Nagórza i okolic.
+      </p>
+    </div>
 
-    <div class="cols">
-      <div class="jak">
-        <p>
-          Członkiem stowarzyszenia może zostać każda pełnoletnia osoba, której bliski jest los
-          Płóczek Górnych, Nagórza i okolic. Wystarczą trzy kroki:
-        </p>
-        <ol>
-          <li>Skontaktuj się z nami albo porozmawiaj z kimś z członków stowarzyszenia.</li>
-          <li>
-            Wypełnij pisemną deklarację członkowską z rekomendacją dwóch członków
-            stowarzyszenia.
-          </li>
-          <li>Zarząd przyjmuje nowych członków uchwałą — i witamy w Dolinie!</li>
-        </ol>
-        <p class="regulamin-link">
-          Szczegóły znajdziesz w <a href={`${base}/regulamin/`}>regulaminie stowarzyszenia</a>.
-        </p>
-      </div>
+    <ol class="join-steps">
+      {kroki.map((krok, index) => (
+        <li>
+          <span>0{index + 1}</span>
+          <p>{krok}</p>
+        </li>
+      ))}
+    </ol>
 
-      <address class="kontakt">
-        <h3>Kontakt</h3>
-        <p>
-          <strong
-            >Stowarzyszenie na Rzecz Rozwoju Płóczek Górnych, Nagórza i Okolic — „Dolina
-            Agatów”</strong
-          >
-        </p>
-        <p>
-          Płóczki Górne 4A<br />
-          59-600 Lwówek Śląski
-        </p>
+    <div class="join-contact">
+      <span class="contact-label">Adres stowarzyszenia</span>
+      <address>
+        <strong>Dolina Agatów</strong><br />
+        Płóczki Górne 4A<br />
+        59-600 Lwówek Śląski
       </address>
+      <a href={`${base}/regulamin/`}>Przeczytaj regulamin członkostwa ↗</a>
     </div>
   </div>
 </section>
 
 <style>
-  .dolacz {
-    background: var(--heban);
-    color: rgb(250 246 239 / 0.88);
+  .join {
+    padding-block: clamp(5rem, 10vw, 9rem);
+    background: var(--bursztyn);
+    color: var(--heban);
   }
 
-  .dolacz h2 {
-    color: var(--krem);
-  }
-
-  .cols {
+  .join-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: clamp(1.5rem, 5vw, 4rem);
-    align-items: start;
+    grid-template-columns: minmax(18rem, 0.8fr) minmax(20rem, 1fr);
+    gap: clamp(3rem, 8vw, 8rem);
   }
 
-  @media (max-width: 720px) {
-    .cols {
-      grid-template-columns: 1fr;
-    }
+  .join .section-label {
+    color: var(--heban);
   }
 
-  .jak ol {
-    padding-left: 1.3rem;
+  .join-title h2 {
+    max-width: 10ch;
+    margin: 0 0 1.4rem;
+    font-size: clamp(3rem, 6vw, 5.4rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
   }
 
-  .jak li {
-    margin-block: 0.6em;
+  .join-title > p {
+    max-width: 30rem;
+    margin: 0;
   }
 
-  .jak li::marker {
-    color: var(--bursztyn-jasny);
+  .join-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgb(36 28 18 / 0.45);
+  }
+
+  .join-steps li {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 1rem;
+    padding-block: 1.3rem;
+    border-bottom: 1px solid rgb(36 28 18 / 0.45);
+  }
+
+  .join-steps span {
+    font-size: 0.7rem;
+    font-weight: 750;
+  }
+
+  .join-steps p {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
+    line-height: 1.25;
+  }
+
+  .join-contact {
+    grid-column: 2;
+    padding-top: 2rem;
+    border-top: 1px solid rgb(36 28 18 / 0.45);
+  }
+
+  .contact-label {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .join-contact address {
+    margin-bottom: 1.4rem;
+    font-style: normal;
+    line-height: 1.6;
+  }
+
+  .join-contact a {
+    color: var(--heban);
     font-weight: 700;
   }
 
-  .regulamin-link a {
-    color: var(--bursztyn-jasny);
-  }
+  @media (max-width: 760px) {
+    .join-grid {
+      grid-template-columns: 1fr;
+    }
 
-  .kontakt {
-    font-style: normal;
-    background: rgb(250 246 239 / 0.06);
-    border: 1px solid rgb(250 246 239 / 0.12);
-    border-radius: 0.6rem;
-    padding: 1.5rem 1.75rem;
-  }
-
-  .kontakt h3 {
-    color: var(--bursztyn-jasny);
-    margin-top: 0;
-    font-size: 1.1rem;
+    .join-contact {
+      grid-column: auto;
+    }
   }
 </style>

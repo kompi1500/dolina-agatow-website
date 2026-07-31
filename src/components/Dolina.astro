@@ -1,225 +1,310 @@
 ---
-// Sekcja krajoznawcza. Fakty za: Wikipedia (Płóczki Górne, Pola Agatowe,
-// Agaty z Płóczek Górnych, Nagórze, Słotwina, Lwóweckie Lato Agatowe) — źródła w stopce.
-// Galeria: zdjęcia CC z Wikimedia Commons w public/images/, atrybucje przy zdjęciach.
-
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// atrybucja autora i licencji wyświetla się przy każdym zdjęciu (wymóg CC)
-const zdjecia = [
+const historie = [
   {
-    plik: 'agat-przekroj.jpg',
-    autor: 'Robert Niedźwiedzki',
-    licencja: 'CC BY 3.0',
-    zrodlo: 'https://commons.wikimedia.org/wiki/File:Agate_from_P%C5%82%C3%B3czki_G%C3%B3rne_RN1.jpg',
-    alt: 'Przekrój agatu z Płóczek Górnych o koncentrycznych warstwach chalcedonu',
-    podpis: 'Agat z Płóczek Górnych',
-  },
-  {
-    plik: 'agat-darski.jpg',
+    nr: '01',
+    id: 'kamien',
+    etykieta: 'Kamień',
+    tytul: 'Wulkaniczna pamięć zamknięta w kamieniu',
+    tekst: [
+      'Około 300 milionów lat temu permskie skały wulkaniczne Pogórza Izerskiego wypełniały się pęcherzami gazu. Później krzemionka odkładała się w nich warstwa po warstwie, tworząc agaty o niepowtarzalnym rysunku.',
+      'Okolice Płóczek Górnych są jednym z ważnych sudeckich stanowisk agatów migdałowcowych. Każdy przekrój jest małą mapą procesów, które trwały dłużej niż cała historia człowieka.',
+    ],
+    plik: 'agat-makro.jpg',
+    alt: 'Przekrój czerwono-białego agatu z Płóczek Górnych',
     autor: 'Lech Darski',
-    licencja: 'CC BY-SA 3.0',
-    zrodlo: 'https://commons.wikimedia.org/wiki/File:Agat_-_P%C5%82%C3%B3czki_G%C3%B3rne,_G._Kaczawskie,_Poland..jpg',
-    alt: 'Kolorowy agat znaleziony w Płóczkach Górnych, Góry Kaczawskie',
-    podpis: 'Agat z okolic Płóczek',
-  },
-  {
-    plik: 'ploczki-gorne.jpg',
-    autor: 'Platanacero',
     licencja: 'CC BY-SA 4.0',
-    zrodlo: 'https://commons.wikimedia.org/wiki/File:P%C5%82%C3%B3czki_G%C3%B3rne_1.jpg',
-    alt: 'Zabudowania wsi Płóczki Górne wśród pól i wzgórz',
-    podpis: 'Płóczki Górne',
+    licencjaUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:Agat_-_P%C5%82%C3%B3czki_G%C3%B3rne,_Poland.jpg',
+    zmiany: 'kadr i kompresja',
+    zrodloFaktow: 'https://jednaziemia.pgi.gov.pl/zasoby-ziemia/75-skalne/kamienie-ozdobne/2282-piekne-agaty.html',
+    zrodloLabel: 'PIG-PIB — Piękne agaty',
   },
   {
-    plik: 'nagorze-pogorze.jpg',
-    autor: 'Platanacero',
-    licencja: 'domena publiczna',
-    zrodlo: 'https://commons.wikimedia.org/wiki/File:Pog%C3%B3rze_Izerskie_Nag%C3%B3rze1.JPG',
-    alt: 'Krajobraz Pogórza Izerskiego w okolicach wsi Nagórze',
-    podpis: 'Pogórze Izerskie pod Nagórzem',
-  },
-  {
+    nr: '02',
+    id: 'krajobraz',
+    etykieta: 'Krajobraz',
+    tytul: 'Dolina, którą wyznacza Słotwina',
+    tekst: [
+      'Płóczki Górne i Nagórze łączy dolina Słotwiny: niewielkiego cieku, który porządkuje tutejszy krajobraz. Wzdłuż niego układają się zabudowania, łąki, ogrody i polne drogi.',
+      'To krajobraz codzienny, nie pocztówkowy. Jego wartość powstaje z relacji między wodą, rolnictwem, starymi drzewami i rozproszoną zabudową. Właśnie tę skalę chcemy chronić.',
+    ],
     plik: 'slotwina.jpg',
+    alt: 'Niewielki próg wodny na rzece Słotwinie pośród zieleni',
     autor: 'Jarosław Łukaszewski',
     licencja: 'CC BY-SA 3.0',
+    licencjaUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
     zrodlo: 'https://commons.wikimedia.org/wiki/File:S%C5%82otwina_w_P%C5%82oczkach_G%C3%B3rnych.JPG',
-    alt: 'Rzeka Słotwina przepływająca przez Płóczki Górne',
-    podpis: 'Słotwina w Płóczkach Górnych',
+    zmiany: 'kadr i kompresja',
   },
   {
-    plik: 'lwowek-mury.jpg',
-    autor: 'Ludwig Schneider',
-    licencja: 'CC BY-SA 3.0',
-    zrodlo: 'https://commons.wikimedia.org/wiki/File:Lw%C3%B3wek_%C5%9Al%C4%85ski_Mury_obronne.JPG',
-    alt: 'Średniowieczne mury obronne Lwówka Śląskiego',
-    podpis: 'Mury obronne Lwówka Śląskiego',
+    nr: '03',
+    id: 'pamiec',
+    etykieta: 'Pamięć',
+    tytul: 'Kamień, drewno i ślady wielu pokoleń',
+    tekst: [
+      'Kościół św. Bartłomieja ma średniowieczny rodowód i pozostaje jednym z najważniejszych punktów historycznego krajobrazu Płóczek Górnych. Jego kamienna wieża pokazuje, jak lokalny materiał i kolejne przebudowy zapisywały historię miejsca.',
+      'W Nagórzu znajduje się także XIX-wieczny pałac wpisany do ewidencji zabytków. Dokumentowanie takich obiektów jest pierwszym krokiem do mądrej opieki nad nimi.',
+    ],
+    plik: 'kosciol-bartlomieja.jpg',
+    alt: 'Kamienna wieża kościoła św. Bartłomieja w Płóczkach Górnych',
+    autor: 'Sławomir Milejski',
+    licencja: 'CC BY-SA 3.0 PL',
+    licencjaUrl: 'https://creativecommons.org/licenses/by-sa/3.0/pl/',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:P%C5%82%C3%B3czki_G%C3%B3rne_ko%C5%9Bci%C3%B3%C5%82_%C5%9Bw_Bart%C5%82omieja_sm.jpg',
+    zmiany: 'kadr i kompresja',
+    zrodloFaktow: 'https://zabytek.pl/pl/obiekty/ploczki-gorne-kosciol-fil-pw-sw-bartlomieja',
+    zrodloLabel: 'Narodowy Instytut Dziedzictwa',
   },
-];
-
-const ciekawostki = [
   {
-    liczba: '1217',
-    opis: 'pierwsza wzmianka o Płóczkach Górnych — nazwa wsi pochodzi od płukania złota w osadach Słotwiny',
-  },
-  {
-    liczba: '1992',
-    opis: 'na Polach Agatowych odkryto prazjolit — po raz pierwszy na świecie potwierdzony w stanie naturalnym',
-  },
-  {
-    liczba: '~50 000',
-    opis: 'gości przyciąga co roku Lwóweckie Lato Agatowe — największa impreza mineralogiczna w Polsce',
+    nr: '04',
+    id: 'mapa',
+    etykieta: 'Mapa',
+    tytul: 'Te same doliny, inne nazwy',
+    tekst: [
+      'Mapa powiatu lwóweckiego z końca XIX wieku pokazuje gęstą sieć dróg, osad i cieków jeszcze pod dawnymi nazwami. Linie topograficzne pozwalają odczytać teren, który do dziś wyznacza rytm obu wsi.',
+      'Zestawianie dawnych map ze współczesnym krajobrazem pomaga odnaleźć zatarte drogi, nazwy i miejsca. To narzędzie pamięci, nie tylko dekoracja.',
+    ],
+    plik: 'mapa-1896.jpg',
+    alt: 'Fragment historycznej mapy powiatu lwóweckiego z 1896 roku',
+    autor: 'C. Vogel',
+    licencja: 'CC0 1.0',
+    licencjaUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+    zrodlo: 'https://commons.wikimedia.org/wiki/File:Landkreis_L%C3%B6wenberg_C.Vogel_vor_1900.jpg',
+    zmiany: 'kadr i kompresja',
   },
 ];
 ---
 
-<section class="section dolina" id="dolina">
-  <div class="container">
-    <span class="section-label">Kraina agatów</span>
-    <h2>Dolina, w której ziemia kryje skarby</h2>
-
-    <div class="prose">
-      <p>
-        Prawie 300 milionów lat temu okolice dzisiejszych Płóczek Górnych zalewała lawa
-        permskich wulkanów. W pustkach po gazach uwięzionych w stygnącej lawie chalcedon
-        odkładał się warstwa po warstwie przez miliony lat — tak powstały <strong
-        >agaty z Płóczek Górnych</strong>, uznawane za jedne z najpiękniejszych na świecie.
-      </p>
-      <p>
-        Słynne <strong>Pola Agatowe</strong> na stokach wzgórza Lipień opisywano w literaturze
-        już w 1846 roku. Dziś prowadzi do nich niebieski szlak z Lwówka Śląskiego, a
-        poszukiwacz agatów trafił nawet do logo wsi. Oprócz agatów znajdowano tu jaspisy,
-        ametysty, kryształ górski — i wspomniany prazjolit, którego naturalne występowanie
-        potwierdzono tu jako pierwsze na świecie.
-      </p>
-      <p>
-        Dolinę rzeki <strong>Słotwiny</strong> zamyka od południa <strong>Nagórze</strong> —
-        najmniejsza wieś gminy Lwówek Śląski, wzmiankowana w 1313 roku, przez wieki należąca
-        do benedyktynek z Lubomierza, z XIX-wiecznym pałacem wpisanym do rejestru zabytków.
-        Obie miejscowości łączy krajobraz Pogórza Izerskiego: głębokie doliny, polne drogi
-        i widoki, które chcemy zachować dla następnych pokoleń.
-      </p>
+<section class="atlas" id="mikroatlas" aria-labelledby="atlas-title">
+  <header class="atlas-intro container">
+    <div>
+      <span class="section-label">Mikroatlas Doliny</span>
+      <h2 id="atlas-title">Cztery warstwy jednego miejsca</h2>
     </div>
+    <p>
+      Dolina nie mieści się w jednym widoku. Czytamy ją przez kamień, wodę, ślady
+      historii i mapy — materiały, które pozwalają zobaczyć więcej niż sam punkt na mapie.
+    </p>
+  </header>
 
-    <ul class="ciekawostki">
-      {
-        ciekawostki.map((c) => (
-          <li>
-            <span class="liczba">{c.liczba}</span>
-            <span class="opis">{c.opis}</span>
-          </li>
-        ))
-      }
-    </ul>
-
-    <div class="galeria" id="galeria">
-      {
-        zdjecia.map((z) => (
-          <figure class="foto">
-            <img src={`${base}/images/${z.plik}`} alt={z.alt} loading="lazy" decoding="async" />
+  <div class="atlas-stories">
+    {historie.map((historia, index) => (
+      <article class:list={['story', { reverse: index % 2 === 1 }]} id={historia.id}>
+        <div class="story-grid container">
+          <figure class="story-media">
+            <img src={`${base}/images/${historia.plik}`} alt={historia.alt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
             <figcaption>
-              <span class="podpis">{z.podpis}</span>
-              <a class="kredyt" href={z.zrodlo} rel="noopener" target="_blank">
-                fot. {z.autor} · {z.licencja}
-              </a>
+              <span>{historia.alt}</span>
+              <span>
+                {historia.autor} · <a href={historia.licencjaUrl} target="_blank" rel="license noopener">{historia.licencja}</a>
+                {' · '}
+                <a href={historia.zrodlo} target="_blank" rel="noopener">Wikimedia Commons</a>
+                {' · '}{historia.zmiany}
+              </span>
             </figcaption>
           </figure>
-        ))
-      }
-    </div>
+
+          <div class="story-copy">
+            <div class="story-index" aria-hidden="true">
+              <span>{historia.nr}</span>
+              <i></i>
+              <span>{historia.etykieta}</span>
+            </div>
+            <h3>{historia.tytul}</h3>
+            <div class="story-prose">
+              {historia.tekst.map((akapit) => <p>{akapit}</p>)}
+            </div>
+            {historia.zrodloFaktow && (
+              <a class="source-link" href={historia.zrodloFaktow} target="_blank" rel="noopener">
+                Źródło: {historia.zrodloLabel} ↗
+              </a>
+            )}
+          </div>
+        </div>
+      </article>
+    ))}
   </div>
 </section>
 
 <style>
-  .dolina {
-    background: linear-gradient(180deg, var(--krem) 0%, var(--krem-cien) 100%);
+  .atlas {
+    background: var(--krem);
   }
 
-  .prose {
-    max-width: 44rem;
-    font-size: 1.06rem;
+  .atlas-intro {
+    display: grid;
+    grid-template-columns: 1fr minmax(20rem, 0.8fr);
+    gap: clamp(2rem, 8vw, 8rem);
+    align-items: end;
+    padding-block: clamp(5rem, 10vw, 9rem);
   }
 
-  .prose strong {
+  .atlas-intro h2 {
+    max-width: 13ch;
+    margin: 0;
+    font-size: clamp(2.7rem, 6vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+
+  .atlas-intro > p {
+    margin: 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--atrament);
+    font-size: 1rem;
+  }
+
+  .story {
+    padding-block: clamp(4rem, 8vw, 8rem);
+    border-top: 1px solid rgb(46 42 34 / 0.18);
+  }
+
+  .story:nth-child(even) {
+    background: var(--krem-cien);
+  }
+
+  .story-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.22fr) minmax(18rem, 0.78fr);
+    gap: clamp(2rem, 7vw, 7rem);
+    align-items: center;
+  }
+
+  .story.reverse .story-media {
+    grid-column: 2;
+  }
+
+  .story.reverse .story-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .story-media {
+    margin: 0;
+  }
+
+  .story-media img {
+    width: 100%;
+    max-height: 44rem;
+    aspect-ratio: 5 / 4;
+    object-fit: cover;
+    filter: saturate(0.88) contrast(1.03);
+  }
+
+  .story:nth-child(3) .story-media img,
+  .story:nth-child(4) .story-media img {
+    aspect-ratio: 4 / 5;
+  }
+
+  .story-media figcaption {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin-top: 0.65rem;
+    font-size: 0.64rem;
+    line-height: 1.4;
+    color: var(--atrament-mute);
+  }
+
+  .story-media figcaption span:last-child {
+    text-align: right;
+  }
+
+  .story-index {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     color: var(--rdza);
   }
 
-  .ciekawostki {
-    list-style: none;
-    margin: 2.75rem 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-    gap: 1.25rem;
+  .story-index i {
+    height: 1px;
+    background: currentColor;
+    opacity: 0.45;
   }
 
-  .ciekawostki li {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    padding: 1.2rem 1.4rem;
-    background: var(--heban);
-    color: rgb(250 246 239 / 0.85);
-    border-radius: 0.6rem;
+  .story-copy h3 {
+    margin: 0 0 1.5rem;
+    font-size: clamp(2.15rem, 4.2vw, 3.8rem);
+    line-height: 1.03;
+    letter-spacing: -0.025em;
   }
 
-  .liczba {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 540;
-    color: var(--bursztyn-jasny);
-    line-height: 1;
+  .story-prose {
+    font-size: 1rem;
   }
 
-  .opis {
-    font-size: 0.9rem;
+  .story-prose p {
+    margin: 0 0 1em;
   }
 
-  .galeria {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-    gap: 1rem;
-    margin-top: 2.75rem;
+  .source-link {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.72rem;
+    font-weight: 650;
+    color: var(--turkus-ciemny);
   }
 
-  .foto {
-    margin: 0;
-    aspect-ratio: 4 / 3;
-    border-radius: 0.6rem;
-    overflow: hidden;
-    position: relative;
-    background: var(--heban);
+  @media (min-width: 840px) {
+    .story-prose {
+      text-align: justify;
+      text-justify: inter-word;
+      hyphens: auto;
+    }
   }
 
-  .foto img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
+  @media (max-width: 839px) {
+    .atlas-intro,
+    .story-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .atlas-intro {
+      align-items: start;
+      gap: 2rem;
+    }
+
+    .story.reverse .story-media,
+    .story.reverse .story-copy {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    .story-copy {
+      order: -1;
+    }
+
+    .story-media figcaption {
+      grid-template-columns: 1fr;
+    }
+
+    .story-media figcaption span:last-child {
+      text-align: left;
+    }
   }
 
-  .foto:hover img {
-    transform: scale(1.04);
-  }
+  @media (max-width: 520px) {
+    .story-media {
+      margin-inline: calc(-1 * var(--pad-x));
+    }
 
-  .foto figcaption {
-    position: absolute;
-    inset: auto 0 0;
-    display: flex;
-    flex-direction: column;
-    padding: 1.6rem 0.9rem 0.55rem;
-    font-size: 0.85rem;
-    color: var(--krem);
-    background: linear-gradient(transparent, rgb(8 7 6 / 0.78));
-  }
+    .story-media figcaption {
+      padding-inline: var(--pad-x);
+    }
 
-  .kredyt {
-    font-size: 0.68rem;
-    color: rgb(250 246 239 / 0.6);
-    text-decoration: none;
-  }
-
-  .kredyt:hover {
-    color: var(--bursztyn-jasny);
+    .story-media img,
+    .story:nth-child(3) .story-media img,
+    .story:nth-child(4) .story-media img {
+      aspect-ratio: 4 / 5;
+    }
   }
 </style>

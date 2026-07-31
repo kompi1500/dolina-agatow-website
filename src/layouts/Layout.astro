@@ -19,6 +19,7 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080706" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
@@ -27,7 +28,7 @@ const {
     <meta property="og:locale" content="pl_PL" />
     <meta
       property="og:image"
-      content={new URL(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/images/agat-przekroj.jpg`, Astro.site)}
+      content={new URL(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/images/agat-makro.jpg`, Astro.site)}
     />
     <link
       rel="icon"
@@ -35,6 +36,24 @@ const {
       href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/favicon.svg`}
     />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    {
+      Astro.url.pathname === `${import.meta.env.BASE_URL}` && (
+        <>
+          <link
+            rel="preload"
+            as="image"
+            href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/media/hero-poster-mobile.jpg`}
+            media="(max-width: 640px)"
+          />
+          <link
+            rel="preload"
+            as="image"
+            href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/media/hero-poster-desktop.jpg`}
+            media="(min-width: 641px)"
+          />
+        </>
+      )
+    }
   </head>
   <body>
     <slot />

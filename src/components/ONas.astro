@@ -1,20 +1,24 @@
 ---
-const filary = [
+const priorytety = [
   {
-    tytul: 'Przyroda i krajobraz',
-    opis: 'Chronimy krajobraz i przyrodę doliny Słotwiny — od bioróżnorodności i cennych siedlisk po bezpieczeństwo przeciwpowodziowe całej zlewni.',
+    nr: 'I',
+    tytul: 'Przyroda i woda',
+    opis: 'Chronimy dolinę Słotwiny, jej bioróżnorodność, retencję i krajobraz przed decyzjami, których skutków nie da się cofnąć.',
   },
   {
-    tytul: 'Agaty i dziedzictwo geologiczne',
-    opis: 'Dbamy o unikatowe w skali świata Płóczkowskie Pola Agatowe i popularyzujemy wiedzę o agatowych tradycjach Krainy Wygasłych Wulkanów.',
+    nr: 'II',
+    tytul: 'Dziedzictwo geologiczne',
+    opis: 'Popularyzujemy wiedzę o lokalnych agatach i Płóczkowskich Polach Agatowych, łącząc geologię z odpowiedzialną geoturystyką.',
   },
   {
-    tytul: 'Historia i zabytki',
-    opis: 'Dokumentujemy historię obu wsi i działamy na rzecz zachowania zabytków — dzwonnicy, Pałacu Nagórze, ruin kaplicy czy dawnego cmentarza ewangelickiego.',
+    nr: 'III',
+    tytul: 'Historia miejsc',
+    opis: 'Dokumentujemy zabytki, dawne nazwy, mapy i wspomnienia, zanim znikną z krajobrazu lub lokalnej pamięci.',
   },
   {
-    tytul: 'Ludzie i rozwój',
-    opis: 'Integrujemy mieszkańców, wspieramy edukację, geoturystykę i lokalną przedsiębiorczość — rozwój, który nie niszczy tego, co w dolinie najcenniejsze.',
+    nr: 'IV',
+    tytul: 'Wspólnota',
+    opis: 'Tworzymy przestrzeń do rozmowy i wspólnego działania mieszkańców Płóczek Górnych, Nagórza i okolic.',
   },
 ];
 
@@ -26,123 +30,182 @@ const zarzad = [
 ];
 ---
 
-<section class="section" id="o-nas">
-  <div class="container">
+<section class="about" id="o-nas" aria-labelledby="about-title">
+  <div class="container about-heading">
     <span class="section-label">O stowarzyszeniu</span>
-    <h2>Działamy dla doliny, w której mieszkamy</h2>
-    <div class="intro">
+    <h2 id="about-title">Mieszkamy tutaj.<br />Dlatego działamy.</h2>
+    <div class="about-lead">
       <p>
-        Jesteśmy stowarzyszeniem mieszkańców Płóczek Górnych, Nagórza i okolic — zakątka
-        Pogórza Izerskiego słynącego z jednych z najpiękniejszych agatów na świecie. Naszym
-        celem jest zrównoważony rozwój obu miejscowości oraz ochrona ich dziedzictwa:
-        przyrodniczego, geologicznego, krajobrazowego, historycznego i kulturowego.
+        Dolina Agatów jest stowarzyszeniem mieszkańców Płóczek Górnych, Nagórza i
+        okolic. Chcemy, aby rozwój obu miejscowości wzmacniał lokalną wspólnotę, nie
+        niszcząc przy tym krajobrazu i dziedzictwa, które czynią to miejsce wyjątkowym.
       </p>
-      <p>
-        Działamy społecznie i lokalnie: organizujemy wydarzenia i spacery edukacyjne,
-        monitorujemy stan środowiska i zabytków, zabieramy głos w konsultacjach dotyczących
-        naszej okolicy i budujemy markę „Dolina Agatowa” jako wyjątkowego miejsca na mapie
-        Dolnego Śląska.
-      </p>
+      <a href="#dolacz">Zobacz, jak dołączyć ↓</a>
     </div>
+  </div>
 
-    <div class="filary">
-      {
-        filary.map((f) => (
-          <article class="filar">
-            <h3>{f.tytul}</h3>
-            <p>{f.opis}</p>
-          </article>
-        ))
-      }
-    </div>
+  <div class="container priorities" aria-label="Priorytety stowarzyszenia">
+    {priorytety.map((priorytet) => (
+      <article>
+        <span>{priorytet.nr}</span>
+        <h3>{priorytet.tytul}</h3>
+        <p>{priorytet.opis}</p>
+      </article>
+    ))}
+  </div>
 
-    <div class="zarzad">
+  <div class="container board">
+    <div class="board-title">
+      <span class="section-label">Osoby</span>
       <h3>Zarząd stowarzyszenia</h3>
-      <ul>
-        {
-          zarzad.map((z) => (
-            <li>
-              <strong>{z.imie}</strong>
-              <span>{z.funkcja}</span>
-            </li>
-          ))
-        }
-      </ul>
     </div>
+    <ol>
+      {zarzad.map((osoba, index) => (
+        <li>
+          <span>0{index + 1}</span>
+          <strong>{osoba.imie}</strong>
+          <small>{osoba.funkcja}</small>
+        </li>
+      ))}
+    </ol>
   </div>
 </section>
 
 <style>
-  .intro {
-    max-width: 44rem;
-    font-size: 1.06rem;
+  .about {
+    padding-block: clamp(5rem, 10vw, 9rem);
+    background: var(--heban);
+    color: rgb(250 246 239 / 0.84);
   }
 
-  .filary {
+  .about-heading {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: 1.25rem;
-    margin-top: 2.5rem;
+    grid-template-columns: minmax(15rem, 0.75fr) minmax(18rem, 0.55fr);
+    gap: clamp(2.5rem, 10vw, 10rem);
   }
 
-  .filar {
-    background: #fff;
-    border: 1px solid var(--krem-cien);
-    border-top: 3px solid var(--bursztyn);
-    border-radius: 0.6rem;
-    padding: 1.4rem 1.5rem;
-    box-shadow: 0 8px 24px rgb(35 48 63 / 0.05);
+  .about-heading > .section-label {
+    grid-column: 1 / -1;
+    margin-bottom: -1rem;
+    color: var(--bursztyn-jasny);
   }
 
-  .filar:nth-child(2) {
-    border-top-color: var(--turkus);
-  }
-
-  .filar:nth-child(3) {
-    border-top-color: var(--rdza);
-  }
-
-  .filar:nth-child(4) {
-    border-top-color: var(--heban);
-  }
-
-  .filar h3 {
-    margin: 0 0 0.5rem;
-    font-size: 1.12rem;
-  }
-
-  .filar p {
+  .about h2 {
     margin: 0;
-    font-size: 0.94rem;
-    color: var(--atrament-mute);
+    color: var(--krem);
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
   }
 
-  .zarzad {
-    margin-top: 3rem;
+  .about-lead {
+    align-self: end;
+    padding-top: 1rem;
+    border-top: 1px solid rgb(250 246 239 / 0.38);
   }
 
-  .zarzad h3 {
-    font-size: 1.2rem;
+  .about-lead p {
+    margin: 0 0 1.5rem;
   }
 
-  .zarzad ul {
-    list-style: none;
-    margin: 1rem 0 0;
-    padding: 0;
+  .about-lead a {
+    color: var(--bursztyn-jasny);
+    font-size: 0.78rem;
+    font-weight: 650;
+  }
+
+  .priorities {
+    margin-top: clamp(4rem, 9vw, 8rem);
+    border-top: 1px solid rgb(250 246 239 / 0.18);
+  }
+
+  .priorities article {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-    gap: 0.75rem 1.5rem;
+    grid-template-columns: 4rem minmax(12rem, 0.7fr) 1fr;
+    gap: 1.5rem;
+    align-items: baseline;
+    padding-block: 1.5rem;
+    border-bottom: 1px solid rgb(250 246 239 / 0.18);
   }
 
-  .zarzad li {
-    display: flex;
-    flex-direction: column;
-    padding-left: 0.9rem;
-    border-left: 3px solid var(--krem-cien);
+  .priorities article > span {
+    color: var(--bursztyn-jasny);
+    font-family: var(--font-display);
   }
 
-  .zarzad span {
-    font-size: 0.88rem;
-    color: var(--atrament-mute);
+  .priorities h3 {
+    margin: 0;
+    color: var(--krem);
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+  }
+
+  .priorities p {
+    margin: 0;
+    max-width: 42rem;
+    color: rgb(250 246 239 / 0.64);
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: 0.7fr 1.3fr;
+    gap: clamp(2rem, 8vw, 7rem);
+    margin-top: clamp(4rem, 9vw, 8rem);
+  }
+
+  .board-title h3 {
+    margin: 0;
+    color: var(--krem);
+    font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+  }
+
+  .board ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .board li {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    gap: 1rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid rgb(250 246 239 / 0.16);
+  }
+
+  .board li > span,
+  .board small {
+    color: rgb(250 246 239 / 0.48);
+    font-size: 0.72rem;
+  }
+
+  @media (min-width: 840px) {
+    .about-lead p,
+    .priorities p {
+      text-align: justify;
+      hyphens: auto;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .about-heading,
+    .board {
+      grid-template-columns: 1fr;
+    }
+
+    .priorities article {
+      grid-template-columns: 2.5rem 1fr;
+    }
+
+    .priorities p {
+      grid-column: 2;
+    }
+
+    .board li {
+      grid-template-columns: 2rem 1fr;
+    }
+
+    .board small {
+      grid-column: 2;
+    }
   }
 </style>

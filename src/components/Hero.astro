@@ -1,166 +1,385 @@
 ---
-// Hero: mapa MapLibre (ortofoto Sentinel-2) z krótkim zjazdem znad Polski na Płóczki Górne.
-// Warstwy: #globe-canvas (gwiazdy 2D na czas preloadu), #hero-map, .hero-overlay (tytuł).
-// hero-globe.ts preładowuje kafelki trasy po ciemku i odpala animację tylko przy WebGL
-// i braku prefers-reduced-motion; w przeciwnym razie od razu finalny widok + tytuł.
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<section class="hero" id="top">
-  <div class="hero-stage" id="hero-stage" data-hero>
-    <canvas id="globe-canvas" aria-hidden="true"></canvas>
-    <div id="hero-map" aria-hidden="true"></div>
+<section class="hero" id="top" data-hero>
+  <picture class="hero-poster" aria-hidden="true">
+    <source media="(max-width: 640px)" srcset={`${base}/media/hero-poster-mobile.jpg`} />
+    <img src={`${base}/media/hero-poster-desktop.jpg`} alt="" fetchpriority="high" />
+  </picture>
+
+  <video
+    class="hero-video"
+    data-intro-video
+    muted
+    playsinline
+    preload="metadata"
+    poster={`${base}/media/hero-poster-desktop.jpg`}
+    aria-hidden="true"
+  >
+    <source media="(max-width: 640px)" src={`${base}/media/intro-mobile.webm`} type="video/webm" />
+    <source media="(max-width: 640px)" src={`${base}/media/intro-mobile.mp4`} type="video/mp4" />
+    <source src={`${base}/media/intro-desktop.webm`} type="video/webm" />
+    <source src={`${base}/media/intro-desktop.mp4`} type="video/mp4" />
+  </video>
+
+  <div class="hero-shade" aria-hidden="true"></div>
+
+  <div class="hero-overlay">
+    <p class="hero-kicker">Stowarzyszenie mieszkańców</p>
+    <h1>Dolina Agatów</h1>
+    <p class="hero-sub">Płóczki Górne <span>·</span> Nagórze <span>·</span> Pogórze Izerskie</p>
+    <button class="map-trigger" type="button" data-open-map>
+      <span>Zobacz Dolinę na mapie</span>
+      <span aria-hidden="true">↗</span>
+    </button>
   </div>
 
-  <div class="hero-overlay" id="hero-overlay">
-    <p class="hero-sub">
-      Stowarzyszenie na Rzecz Rozwoju Płóczek Górnych, Nagórza i&nbsp;Okolic
-    </p>
-    <h1>Dolina Agatów</h1>
-    <p class="hero-detal">Płóczki Górne · Nagórze · Pogórze Izerskie</p>
-  </div>
+  <p class="hero-coordinates" aria-hidden="true">51°03′53″N · 15°31′34″E</p>
+  <button type="button" class="hero-skip" data-skip-intro>Pomiń intro</button>
 
   <script is:inline>
-    // tytuł znika PRZED pierwszym paintem (żadnego błysku przy odświeżeniu);
-    // bez JS skrypt się nie wykona i tytuł normalnie widać
-    document.getElementById('hero-overlay').classList.add('hidden');
+    (() => {
+      const hero = document.currentScript?.closest('[data-hero]');
+      hero?.classList.add('is-js');
+      window.setTimeout(() => hero?.classList.add('is-complete'), 5500);
+    })();
   </script>
-
-  <button type="button" class="hero-skip" id="hero-skip">Pomiń intro</button>
 </section>
 
+<dialog class="map-dialog" data-map-dialog data-state="idle" aria-labelledby="map-title">
+  <div class="map-shell">
+    <header class="map-header">
+      <div>
+        <span class="map-eyebrow">Punkt na mapie</span>
+        <h2 id="map-title">Płóczki Górne 4A</h2>
+      </div>
+      <button type="button" class="map-close" data-close-map aria-label="Zamknij mapę">×</button>
+    </header>
+    <div class="map-frame">
+      <div class="map-canvas" data-map-canvas aria-label="Interaktywna mapa siedziby stowarzyszenia"></div>
+      <div class="map-placeholder" data-map-state role="status">Mapa zostanie wczytana na żądanie.</div>
+      <button class="map-retry" type="button" data-retry-map>Spróbuj ponownie</button>
+    </div>
+    <footer class="map-footer">
+      <p>Przeciągnij, aby rozejrzeć się po okolicy. Zoom kółkiem strony pozostaje wyłączony.</p>
+      <a href="https://www.openstreetmap.org/?mlat=51.064831&mlon=15.52605#map=15/51.064831/15.52605" target="_blank" rel="noopener">
+        Otwórz w OpenStreetMap ↗
+      </a>
+    </footer>
+  </div>
+</dialog>
+
 <script>
-  import '../scripts/hero-globe';
+  import '../scripts/hero-controller';
 </script>
 
 <style>
   .hero {
     position: relative;
+    min-height: 42rem;
     height: 100svh;
-    min-height: 34rem;
     overflow: hidden;
-    background:
-      radial-gradient(ellipse at 50% 120%, #2b2113 0%, transparent 55%),
-      var(--kosmos);
+    isolation: isolate;
+    background: #050505;
     color: var(--krem);
   }
 
-  .hero-stage,
-  .hero-stage canvas,
-  #hero-map {
+  .hero-poster,
+  .hero-video,
+  .hero-shade {
     position: absolute;
     inset: 0;
-  }
-
-  .hero-stage canvas {
     width: 100%;
     height: 100%;
   }
 
-  #hero-map {
-    opacity: 0;
-    transition: opacity 0.4s linear;
+  .hero-poster img,
+  .hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  /* przyciemnienie od pierwszej klatki (bez przełączki po wylądowaniu):
-     napisy mapy i tytuł zawsze na pierwszym planie */
-  .hero-stage::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    box-shadow: inset 0 0 22vmin rgb(8 7 6 / 0.6);
+  .hero-video {
+    z-index: 1;
+    opacity: 0;
+    background: #050505;
+  }
+
+  .hero.is-playing .hero-video {
+    opacity: 1;
+  }
+
+  .hero.is-complete .hero-video {
+    opacity: 0;
+    transition: opacity 0.9s ease;
+  }
+
+  .hero-shade {
+    z-index: 2;
     background:
-      linear-gradient(180deg, rgb(8 7 6 / 0.6) 0%, transparent 18%),
-      linear-gradient(0deg, rgb(8 7 6 / 0.55) 0%, transparent 42%),
-      rgb(8 7 6 / 0.22);
+      linear-gradient(180deg, rgb(4 5 4 / 0.55), transparent 25%),
+      linear-gradient(0deg, rgb(4 5 4 / 0.82), transparent 62%),
+      radial-gradient(circle at 50% 45%, transparent 20%, rgb(4 5 4 / 0.22) 100%);
   }
 
   .hero-overlay {
     position: absolute;
-    inset: 0;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    z-index: 3;
+    left: 50%;
+    bottom: clamp(5.5rem, 13vh, 9rem);
+    width: min(52rem, calc(100% - 2 * var(--pad-x)));
+    transform: translate(-50%, 1rem);
     text-align: center;
-    padding-inline: var(--pad-x);
-    pointer-events: none;
-    text-shadow: 0 2px 24px rgb(8 7 6 / 0.65);
+    opacity: 1;
+    transition: opacity 0.9s ease, transform 0.9s ease;
   }
 
-  .hero-overlay > * {
-    pointer-events: auto;
-  }
-
-  .hero-overlay.hidden {
+  .hero.is-js:not(.is-complete) .hero-overlay {
     opacity: 0;
-    visibility: hidden;
+    transform: translate(-50%, 2rem);
   }
 
-  .hero-overlay {
-    transition:
-      opacity 1.4s ease,
-      visibility 1.4s;
+  .hero-kicker {
+    margin: 0 0 0.75rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bursztyn-jasny);
   }
 
-  /* po wylądowaniu blok tytułowy podchodzi pod pineskę (wieś w górnym złotym cięciu) */
-  .hero-stage.done + .hero-overlay {
-    justify-content: flex-end;
-    padding-bottom: clamp(9rem, 33vh, 20rem);
-  }
-
-  /* typografia w proporcjach φ: tytuł 4.6rem → nazwa 4.6/φ² ≈ 1.75rem → detal 1.75/φ ≈ 1.08...
-     detal celowo o krok mniejszy (φ³): 4.6/4.236 ≈ 1.08 → optycznie 0.82rem po spersowaniu */
-  .hero-overlay h1 {
-    font-family: var(--font-display);
-    font-size: clamp(2.9rem, 8.5vw, 4.6rem);
-    font-weight: 480;
-    color: var(--krem);
+  .hero h1 {
     margin: 0;
-    letter-spacing: 0.01em;
+    font-size: clamp(3.4rem, 9vw, 7.2rem);
+    font-weight: 480;
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+    color: var(--krem);
+    text-shadow: 0 3px 28px rgb(0 0 0 / 0.5);
   }
 
   .hero-sub {
-    font-size: clamp(1rem, 2.4vw, 1.375rem);
-    font-weight: 550;
-    color: rgb(250 246 239 / 0.92);
-    max-width: 40rem;
-    margin: 0 0 0.62rem;
-  }
-
-  .hero-detal {
-    font-size: 0.82rem;
+    margin: 1.2rem 0 0;
+    font-size: clamp(0.76rem, 1.5vw, 0.95rem);
     font-weight: 650;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
+  }
+
+  .hero-sub span {
     color: var(--bursztyn-jasny);
-    margin: 1em 0 0;
   }
 
-  .hero-skip {
-    position: absolute;
-    right: 1.25rem;
-    bottom: 1.25rem;
-    z-index: 20;
-    background: rgb(8 7 6 / 0.45);
-    color: rgb(250 246 239 / 0.8);
-    border: 1px solid rgb(250 246 239 / 0.25);
-    border-radius: 999px;
-    padding: 0.45rem 1.1rem;
+  .map-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.6rem;
+    padding: 0.75rem 1rem 0.75rem 1.2rem;
+    border: 1px solid rgb(250 246 239 / 0.45);
+    border-radius: 0;
+    background: rgb(5 5 5 / 0.28);
+    color: var(--krem);
     font: inherit;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     cursor: pointer;
-    display: none;
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
   }
 
-  .hero-skip:hover {
+  .map-trigger:hover,
+  .map-trigger:focus-visible {
     border-color: var(--bursztyn-jasny);
     color: var(--bursztyn-jasny);
   }
 
-  .hero-skip.visible {
-    display: block;
+  .hero-coordinates {
+    position: absolute;
+    z-index: 3;
+    left: var(--pad-x);
+    bottom: 1.4rem;
+    margin: 0;
+    font: 650 0.68rem/1 var(--font-body);
+    letter-spacing: 0.16em;
+    color: rgb(250 246 239 / 0.55);
+  }
+
+  .hero-skip {
+    position: absolute;
+    z-index: 4;
+    right: var(--pad-x);
+    bottom: 1.2rem;
+    padding: 0.6rem 0.9rem;
+    border: 0;
+    border-bottom: 1px solid rgb(250 246 239 / 0.45);
+    background: transparent;
+    color: rgb(250 246 239 / 0.84);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .map-dialog {
+    width: min(68rem, calc(100vw - 2rem));
+    max-width: none;
+    padding: 0;
+    border: 1px solid rgb(250 246 239 / 0.18);
+    background: var(--heban);
+    color: var(--krem);
+  }
+
+  .map-dialog::backdrop {
+    background: rgb(4 5 4 / 0.82);
+    backdrop-filter: blur(6px);
+  }
+
+  .map-header,
+  .map-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .map-eyebrow {
+    font-size: 0.67rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bursztyn-jasny);
+  }
+
+  .map-header h2 {
+    margin: 0.1rem 0 0;
+    color: var(--krem);
+    font-size: 1.4rem;
+  }
+
+  .map-close {
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid rgb(250 246 239 / 0.2);
+    background: transparent;
+    color: var(--krem);
+    font-size: 1.8rem;
+    cursor: pointer;
+  }
+
+  .map-frame {
+    position: relative;
+    min-height: min(64vh, 38rem);
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 52% 48%, rgb(217 131 36 / 0.26) 0 4px, transparent 5px),
+      repeating-radial-gradient(ellipse at 52% 48%, transparent 0 38px, rgb(250 246 239 / 0.06) 39px 40px),
+      #18221d;
+  }
+
+  .map-canvas {
+    position: absolute;
+    inset: 0;
+  }
+
+  .map-placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    text-align: center;
+    background: rgb(19 29 24 / 0.82);
+  }
+
+  .map-dialog[data-state='ready'] .map-placeholder,
+  .map-dialog:not([data-state='error']) .map-retry {
+    display: none;
+  }
+
+  .map-retry {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    transform: translateX(-50%);
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--bursztyn-jasny);
+    background: var(--heban);
+    color: var(--krem);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .map-footer {
+    font-size: 0.78rem;
+    color: rgb(250 246 239 / 0.65);
+  }
+
+  .map-footer p {
+    margin: 0;
+  }
+
+  .map-footer a {
+    flex: none;
+    color: var(--bursztyn-jasny);
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      min-height: 36rem;
+      height: 100svh;
+    }
+
+    .hero-overlay {
+      bottom: 6rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(3.4rem, 17vw, 5rem);
+    }
+
+    .hero-sub {
+      max-width: 20rem;
+      margin-inline: auto;
+      line-height: 1.7;
+    }
+
+    .hero-coordinates {
+      display: none;
+    }
+
+    .map-dialog {
+      width: 100vw;
+      height: 100dvh;
+      max-height: none;
+      margin: 0;
+    }
+
+    .map-shell {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 100%;
+    }
+
+    .map-frame {
+      min-height: 0;
+    }
+
+    .map-footer {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-video {
+      display: none;
+    }
+
+    .hero-overlay {
+      opacity: 1 !important;
+      transform: translate(-50%, 0) !important;
+      transition: none;
+    }
   }
 </style>
