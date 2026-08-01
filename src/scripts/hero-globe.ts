@@ -9,7 +9,7 @@ const ORTO_URL = 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2018_3857/def
 const FINAL_ZOOM = 11.5;
 const START_ZOOM = 1.5;
 const START_CENTER: LngLatLike = [-14, 38];
-const INTRO_TIMEOUT = 8500;
+const INTRO_TIMEOUT = 9500;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 interface Els {
@@ -96,15 +96,10 @@ function createMap(mapDiv: HTMLElement, interactive: boolean, zoom: number, cent
     cooperativeGestures: false,
     attributionControl: false,
     canvasContextAttributes: { alpha: true },
-    pixelRatio: Math.min(window.devicePixelRatio, 1.5),
+    pixelRatio: Math.min(window.devicePixelRatio, 2),
     fadeDuration: 0,
     maxTileCacheSize: tileCacheSize(),
   });
-}
-
-function setRenderScale(map: MapLibreMap, moving: boolean): void {
-  const ratio = moving ? 1 : Math.min(window.devicePixelRatio, 1.5);
-  (map as unknown as { setPixelRatio?: (value: number) => void }).setPixelRatio?.(ratio);
 }
 
 async function addPolandOutline(map: MapLibreMap): Promise<void> {
@@ -150,28 +145,37 @@ function toTile(longitude: number, latitude: number, zoom: number): [number, num
   return [x, y];
 }
 
-function landingTileUrls(): string[] {
-  const urls: string[] = [];
+function flightTileUrls(): string[] {
+  const urls = new Set<string>();
   const portrait = window.innerHeight > window.innerWidth;
-  for (const zoom of [11, 12]) {
+  const addArea = (zoom: number, radiusX: number, radiusY: number) => {
     const [centerX, centerY] = toTile(SIEDZIBA[0], SIEDZIBA[1], zoom);
-    const radiusX = zoom === 11 ? 1 : portrait ? 1 : 2;
-    const radiusY = zoom === 11 ? 1 : portrait ? 2 : 1;
     for (let y = centerY - radiusY; y <= centerY + radiusY; y += 1) {
       for (let x = centerX - radiusX; x <= centerX + radiusX; x += 1) {
-        urls.push(ORTO_URL.replace('{z}', String(zoom)).replace('{y}', String(y)).replace('{x}', String(x)));
+        urls.add(ORTO_URL.replace('{z}', String(zoom)).replace('{y}', String(y)).replace('{x}', String(x)));
       }
     }
+  };
+
+  // Najpierw finał — najważniejszy przy krótkim limicie czasu.
+  for (const zoom of [11, 12]) {
+    const radiusX = zoom === 11 ? 1 : portrait ? 1 : 2;
+    const radiusY = zoom === 11 ? 1 : portrait ? 2 : 1;
+    addArea(zoom, radiusX, radiusY);
   }
-  return urls.slice(0, 24);
+
+  // Następnie drabinka lotu. Sąsiednie kafelki zapobiegają miękkim prostokątom
+  // z niższego zoomu, gdy kamera przekracza kolejny poziom szczegółowości.
+  for (const zoom of [10, 9, 7, 5, 3]) addArea(zoom, 1, 1);
+  return [...urls].slice(0, 64);
 }
 
-async function prefetchLandingTiles(): Promise<void> {
+async function prefetchFlightTiles(): Promise<void> {
   const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   if (connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g') return;
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 2800);
-  const queue = landingTileUrls();
+  const timeout = window.setTimeout(() => controller.abort(), 3200);
+  const queue = flightTileUrls();
   const worker = async () => {
     while (queue.length) {
       const url = queue.shift();
@@ -184,8 +188,30 @@ async function prefetchLandingTiles(): Promise<void> {
       }
     }
   };
-  await Promise.all([worker(), worker(), worker()]);
+  await Promise.all([worker(), worker(), worker(), worker()]);
   window.clearTimeout(timeout);
+}
+
+function waitForOrtho(map: MapLibreMap, timeoutMs = 1600): Promise<void> {
+  return new Promise((resolve) => {
+    if (map.isSourceLoaded(ORTO_SOURCE)) {
+      resolve();
+      return;
+    }
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeout);
+      map.off('sourcedata', onSourceData);
+      resolve();
+    };
+    const onSourceData = (event: { sourceId?: string; isSourceLoaded?: boolean }) => {
+      if (event.sourceId === ORTO_SOURCE && event.isSourceLoaded) done();
+    };
+    const timeout = window.setTimeout(done, timeoutMs);
+    map.on('sourcedata', onSourceData);
+  });
 }
 
 function formatCoordinate(value: number, positive: string, negative: string): string {
@@ -286,7 +312,6 @@ function bindExplorer(map: MapLibreMap, els: Els): void {
 }
 
 function enableInteraction(map: MapLibreMap, els: Els): void {
-  setRenderScale(map, false);
   map.dragPan.enable();
   map.touchZoomRotate.enable();
   map.doubleClickZoom.enable();
@@ -322,7 +347,7 @@ function configureStyle(map: MapLibreMap): void {
     maxzoom: 14,
     attribution: 'Sentinel-2 cloudless 2018 — EOX (CC BY-NC-SA 4.0)',
   });
-  map.addLayer({ id: ORTO_LAYER, type: 'raster', source: ORTO_SOURCE, paint: { 'raster-fade-duration': 120 } }, firstSymbol);
+  map.addLayer({ id: ORTO_LAYER, type: 'raster', source: ORTO_SOURCE, paint: { 'raster-fade-duration': 0 } }, firstSymbol);
   for (const layer of map.getStyle().layers ?? []) {
     if (layer.type === 'symbol') map.setLayerZoomRange(layer.id, Math.max(layer.minzoom ?? 0, 6.8), layer.maxzoom ?? 24);
     if (layer.type === 'fill-extrusion') map.setLayoutProperty(layer.id, 'visibility', 'none');
@@ -374,10 +399,10 @@ function runIntro(els: Els): void {
       revealed = true;
       els.mapDiv.style.opacity = '1';
       els.stage.classList.add('map-visible');
-      void prefetchLandingTiles();
-      whenVisible(() => window.setTimeout(() => {
+      whenVisible(async () => {
+        await prefetchFlightTiles();
+        window.setTimeout(() => {
         if (finished) return;
-        setRenderScale(map, true);
         map.flyTo({
           center: SIEDZIBA,
           zoom: FINAL_ZOOM,
@@ -386,12 +411,15 @@ function runIntro(els: Els): void {
           padding: { top: 0, left: 0, right: 0, bottom: landingPadding(els) },
           essential: true,
         });
-        map.once('moveend', () => {
+        map.once('moveend', async () => {
+          if (finished) return;
+          await waitForOrtho(map);
           if (finished) return;
           addPin(map, els.mapDiv);
           window.setTimeout(() => finish(false), 150);
         });
-      }, 500));
+        }, 350);
+      });
     };
     const revealCap = window.setTimeout(reveal, 2500);
     map.once('idle', () => {

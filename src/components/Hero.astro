@@ -125,7 +125,7 @@
   /* po wylądowaniu blok tytułowy podchodzi pod pineskę (wieś w górnym złotym cięciu) */
   .hero-stage.done + .hero-overlay {
     justify-content: flex-end;
-    padding-bottom: clamp(13rem, 45vh, 27rem);
+    padding-bottom: calc(clamp(13rem, 45vh, 27rem) - 10px);
   }
 
   /* typografia w proporcjach φ: tytuł 4.6rem → nazwa 4.6/φ² ≈ 1.75rem → detal 1.75/φ ≈ 1.08...
@@ -296,7 +296,7 @@
 
   @media (max-width: 680px) {
     .hero { min-height: 30rem; }
-    .hero-stage.done + .hero-overlay { padding-bottom: clamp(12.5rem, 42vh, 18rem); }
+    .hero-stage.done + .hero-overlay { padding-bottom: calc(clamp(12.5rem, 42vh, 18rem) - 8px); }
     .hero-sub { max-width: 22rem; font-size: clamp(0.92rem, 4vw, 1.1rem); }
     .hero-detal { max-width: 20rem; line-height: 1.65; }
     .hero-map-controls { right: 0.75rem; bottom: 0.75rem; }
