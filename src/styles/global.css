@@ -86,7 +86,7 @@ a:hover {
 }
 
 .prose-width {
-  max-width: var(--prose-w);
+  max-width: none;
 }
 
 @media (min-width: 721px) {

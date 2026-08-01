@@ -21,7 +21,6 @@ interface Els {
   skip: HTMLButtonElement;
   controls: HTMLElement;
   coordinates: HTMLElement;
-  reticle: HTMLElement;
   layerButton: HTMLButtonElement;
   compass: HTMLButtonElement;
   fullscreen: HTMLButtonElement;
@@ -36,12 +35,11 @@ function getEls(): Els | null {
   const skip = document.getElementById('hero-skip') as HTMLButtonElement | null;
   const controls = document.getElementById('hero-map-controls');
   const coordinates = document.getElementById('hero-coordinates');
-  const reticle = document.getElementById('hero-reticle');
   const layerButton = document.querySelector<HTMLButtonElement>('[data-map-action="layer"]');
   const compass = document.querySelector<HTMLButtonElement>('[data-map-action="compass"]');
   const fullscreen = document.querySelector<HTMLButtonElement>('[data-map-action="fullscreen"]');
-  if (!hero || !stage || !canvas || !mapDiv || !overlay || !skip || !controls || !coordinates || !reticle || !layerButton || !compass || !fullscreen) return null;
-  return { hero, stage, canvas, mapDiv, overlay, skip, controls, coordinates, reticle, layerButton, compass, fullscreen };
+  if (!hero || !stage || !canvas || !mapDiv || !overlay || !skip || !controls || !coordinates || !layerButton || !compass || !fullscreen) return null;
+  return { hero, stage, canvas, mapDiv, overlay, skip, controls, coordinates, layerButton, compass, fullscreen };
 }
 
 function hasWebGL(): boolean {
@@ -267,12 +265,9 @@ function bindExplorer(map: MapLibreMap, els: Els): void {
         const y = pointer.clientY - rect.top;
         const point = map.unproject([x, y]);
         els.coordinates.textContent = coordinateLabel(point.lng, point.lat);
-        els.reticle.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-        els.reticle.classList.add('visible');
       });
     }, { passive: true });
     els.mapDiv.addEventListener('pointerleave', () => {
-      els.reticle.classList.remove('visible');
       els.coordinates.textContent = coordinateLabel(SIEDZIBA[0], SIEDZIBA[1]);
     });
   } else {

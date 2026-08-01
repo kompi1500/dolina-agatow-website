@@ -9,7 +9,6 @@
   <div class="hero-stage" id="hero-stage" data-hero>
     <canvas id="globe-canvas" aria-hidden="true"></canvas>
     <div id="hero-map" aria-hidden="true" role="region" aria-label="Interaktywna mapa Doliny Agatów"></div>
-    <span class="hero-reticle" id="hero-reticle" aria-hidden="true"></span>
   </div>
 
   <div class="hero-overlay" id="hero-overlay">
@@ -69,39 +68,13 @@
     inset: 0;
   }
 
-  .hero-reticle {
-    position: absolute;
-    z-index: 8;
-    left: 0;
-    top: 0;
-    width: 1.15rem;
-    height: 1.15rem;
-    margin: -0.575rem 0 0 -0.575rem;
-    border: 1px solid rgb(255 240 204 / 0.72);
-    border-radius: 50%;
-    opacity: 0;
-    pointer-events: none;
-    box-shadow: 0 0 0 1px rgb(8 7 6 / 0.35), inset 0 0 0 3px rgb(8 7 6 / 0.15);
-    transition: opacity 0.15s ease;
-  }
-
-  .hero-reticle::before,
-  .hero-reticle::after {
-    content: '';
-    position: absolute;
-    background: rgb(255 240 204 / 0.8);
-  }
-
-  .hero-reticle::before { width: 1px; height: 1.65rem; left: 50%; top: -0.28rem; }
-  .hero-reticle::after { width: 1.65rem; height: 1px; top: 50%; left: -0.28rem; }
-  .hero-reticle.visible { opacity: 1; }
-
   .hero-stage canvas {
     width: 100%;
     height: 100%;
   }
 
   #hero-map {
+    inset: -6px;
     opacity: 0;
     transition: opacity 0.4s linear;
   }
@@ -152,7 +125,7 @@
   /* po wylądowaniu blok tytułowy podchodzi pod pineskę (wieś w górnym złotym cięciu) */
   .hero-stage.done + .hero-overlay {
     justify-content: flex-end;
-    padding-bottom: clamp(11.5rem, 39vh, 23rem);
+    padding-bottom: clamp(13rem, 45vh, 27rem);
   }
 
   /* typografia w proporcjach φ: tytuł 4.6rem → nazwa 4.6/φ² ≈ 1.75rem → detal 1.75/φ ≈ 1.08...
@@ -323,7 +296,7 @@
 
   @media (max-width: 680px) {
     .hero { min-height: 30rem; }
-    .hero-stage.done + .hero-overlay { padding-bottom: clamp(11rem, 36vh, 16rem); }
+    .hero-stage.done + .hero-overlay { padding-bottom: clamp(12.5rem, 42vh, 18rem); }
     .hero-sub { max-width: 22rem; font-size: clamp(0.92rem, 4vw, 1.1rem); }
     .hero-detal { max-width: 20rem; line-height: 1.65; }
     .hero-map-controls { right: 0.75rem; bottom: 0.75rem; }
