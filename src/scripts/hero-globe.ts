@@ -95,7 +95,7 @@ function createMap(mapDiv: HTMLElement, interactive: boolean, zoom: number, cent
     center,
     zoom,
     interactive,
-    cooperativeGestures: true,
+    cooperativeGestures: false,
     attributionControl: false,
     canvasContextAttributes: { alpha: true },
     pixelRatio: Math.min(window.devicePixelRatio, 1.5),
@@ -296,7 +296,7 @@ function enableInteraction(map: MapLibreMap, els: Els): void {
   map.touchZoomRotate.enable();
   map.doubleClickZoom.enable();
   map.keyboard.enable();
-  map.scrollZoom.enable();
+  map.scrollZoom.disable();
   bindExplorer(map, els);
 }
 

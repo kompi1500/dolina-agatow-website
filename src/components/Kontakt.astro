@@ -1,99 +1,78 @@
----
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
----
-
-<section class="section dolacz" id="dolacz">
+<section class="section kontakt-section" id="kontakt">
   <div class="container">
-    <span class="section-label">Dołącz do nas</span>
-    <h2>Dolina rośnie w siłę z każdą osobą</h2>
+    <span class="section-label">Kontakt</span>
+    <h2>Porozmawiajmy o Dolinie Agatów</h2>
 
-    <div class="cols">
-      <div class="jak">
+    <div class="contact-grid">
+      <div class="contact-copy prose-justify">
         <p>
-          Członkiem stowarzyszenia może zostać każda pełnoletnia osoba, której bliski jest los
-          Płóczek Górnych, Nagórza i okolic. Wystarczą trzy kroki:
+          Masz pytanie dotyczące działalności stowarzyszenia, lokalnego dziedzictwa albo
+          wydarzeń w Płóczkach Górnych i Nagórzu? Aktualne kanały kontaktu internetowego
+          opublikujemy tutaj, gdy tylko będą gotowe.
         </p>
-        <ol>
-          <li>Skontaktuj się z nami albo porozmawiaj z kimś z członków stowarzyszenia.</li>
-          <li>
-            Wypełnij pisemną deklarację członkowską z rekomendacją dwóch członków
-            stowarzyszenia.
-          </li>
-          <li>Zarząd przyjmuje nowych członków uchwałą — i witamy w Dolinie!</li>
-        </ol>
-        <p class="regulamin-link">
-          Szczegóły znajdziesz w <a href={`${base}/regulamin/`}>regulaminie stowarzyszenia</a>.
+        <p class="contact-note">
+          Do tego czasu można skontaktować się z nami osobiście lub korespondencyjnie pod
+          adresem siedziby.
         </p>
       </div>
 
-      <address class="kontakt">
-        <h3>Kontakt</h3>
-        <p>
-          <strong
-            >Stowarzyszenie na Rzecz Rozwoju Płóczek Górnych, Nagórza i Okolic — „Dolina
-            Agatów”</strong
-          >
-        </p>
-        <p>
-          Płóczki Górne 4A<br />
-          59-600 Lwówek Śląski
-        </p>
+      <address class="contact-card">
+        <span class="contact-card-label">Siedziba stowarzyszenia</span>
+        <strong>Dolina Agatów</strong>
+        <span>Płóczki Górne 4A</span>
+        <span>59-600 Lwówek Śląski</span>
       </address>
     </div>
   </div>
 </section>
 
 <style>
-  .dolacz {
+  .kontakt-section {
     background: var(--heban);
-    color: rgb(250 246 239 / 0.88);
+    color: rgb(250 246 239 / 0.82);
   }
 
-  .dolacz h2 {
-    color: var(--krem);
-  }
+  .kontakt-section h2 { color: var(--krem); }
 
-  .cols {
+  .contact-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: clamp(1.5rem, 5vw, 4rem);
+    grid-template-columns: minmax(0, 1.45fr) minmax(15rem, 0.8fr);
+    gap: clamp(2rem, 6vw, 5rem);
     align-items: start;
+    max-width: var(--prose-w);
+  }
+
+  .contact-copy { font-size: 1.03rem; }
+  .contact-copy p { margin-block: 0 1rem; }
+  .contact-note { color: rgb(250 246 239 / 0.62); }
+
+  .contact-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.4rem 0 0 1.35rem;
+    border: 0;
+    border-left: 2px solid var(--bursztyn);
+    font-style: normal;
+  }
+
+  .contact-card-label {
+    margin-bottom: 0.75rem;
+    color: var(--bursztyn-jasny);
+    font-size: 0.75rem;
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .contact-card strong {
+    margin-bottom: 0.3rem;
+    color: var(--krem);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 570;
   }
 
   @media (max-width: 720px) {
-    .cols {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .jak ol {
-    padding-left: 1.3rem;
-  }
-
-  .jak li {
-    margin-block: 0.6em;
-  }
-
-  .jak li::marker {
-    color: var(--bursztyn-jasny);
-    font-weight: 700;
-  }
-
-  .regulamin-link a {
-    color: var(--bursztyn-jasny);
-  }
-
-  .kontakt {
-    font-style: normal;
-    background: rgb(250 246 239 / 0.06);
-    border: 1px solid rgb(250 246 239 / 0.12);
-    border-radius: 0.6rem;
-    padding: 1.5rem 1.75rem;
-  }
-
-  .kontakt h3 {
-    color: var(--bursztyn-jasny);
-    margin-top: 0;
-    font-size: 1.1rem;
+    .contact-grid { grid-template-columns: 1fr; gap: 1.5rem; }
   }
 </style>

@@ -18,10 +18,11 @@
   --turkus: #2a9d8f;
   --turkus-ciemny: #1f7468;
 
-  --font-display: 'Fraunces Variable', Georgia, serif;
-  --font-body: 'Inter Variable', system-ui, sans-serif;
+  --font-display: 'Newsreader Variable', Georgia, serif;
+  --font-body: 'Source Sans 3 Variable', system-ui, sans-serif;
 
   --max-w: 72rem;
+  --prose-w: 50rem;
   --pad-x: clamp(1.25rem, 4vw, 2.5rem);
 }
 
@@ -46,7 +47,7 @@ body {
   font-family: var(--font-body);
   color: var(--atrament);
   background: var(--krem);
-  line-height: 1.65;
+  line-height: 1.68;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -54,8 +55,8 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 560;
-  line-height: 1.15;
+  font-weight: 570;
+  line-height: 1.08;
   color: var(--heban);
   text-wrap: balance;
 }
@@ -82,6 +83,19 @@ a:hover {
 
 .section {
   padding-block: clamp(3.5rem, 8vw, 6.5rem);
+}
+
+.prose-width {
+  max-width: var(--prose-w);
+}
+
+@media (min-width: 721px) {
+  .prose-justify p,
+  p.prose-justify {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+  }
 }
 
 .section-label {

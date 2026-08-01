@@ -30,7 +30,7 @@ const zarzad = [
   <div class="container">
     <span class="section-label">O stowarzyszeniu</span>
     <h2>Działamy dla doliny, w której mieszkamy</h2>
-    <div class="intro">
+    <div class="intro prose-width prose-justify">
       <p>
         Jesteśmy stowarzyszeniem mieszkańców Płóczek Górnych, Nagórza i okolic — zakątka
         Pogórza Izerskiego słynącego z jednych z najpiękniejszych agatów na świecie. Naszym
@@ -74,8 +74,11 @@ const zarzad = [
 
 <style>
   .intro {
-    max-width: 44rem;
     font-size: 1.06rem;
+  }
+
+  .intro p {
+    margin-block: 0 1rem;
   }
 
   .filary {
@@ -86,25 +89,17 @@ const zarzad = [
   }
 
   .filar {
-    background: #fff;
-    border: 1px solid var(--krem-cien);
-    border-top: 3px solid var(--bursztyn);
-    border-radius: 0.6rem;
+    background: linear-gradient(145deg, #fffdf8, #f4ead8);
+    border: 1px solid #e8d8bd;
+    border-top: 3px solid #bd7b32;
+    border-radius: 0.35rem;
     padding: 1.4rem 1.5rem;
     box-shadow: 0 8px 24px rgb(35 48 63 / 0.05);
   }
 
-  .filar:nth-child(2) {
-    border-top-color: var(--turkus);
-  }
-
-  .filar:nth-child(3) {
-    border-top-color: var(--rdza);
-  }
-
-  .filar:nth-child(4) {
-    border-top-color: var(--heban);
-  }
+  .filar:nth-child(2) { background: linear-gradient(145deg, #fcf8ef, #efe1c9); }
+  .filar:nth-child(3) { background: linear-gradient(145deg, #fffaf1, #f0dfc5); }
+  .filar:nth-child(4) { background: linear-gradient(145deg, #faf4e9, #e9d7ba); }
 
   .filar h3 {
     margin: 0 0 0.5rem;
@@ -118,7 +113,7 @@ const zarzad = [
   }
 
   .zarzad {
-    margin-top: 3rem;
+    margin-top: 2.5rem;
   }
 
   .zarzad h3 {
@@ -144,5 +139,9 @@ const zarzad = [
   .zarzad span {
     font-size: 0.88rem;
     color: var(--atrament-mute);
+  }
+
+  #o-nas {
+    padding-bottom: clamp(2.25rem, 4vw, 3.5rem);
   }
 </style>

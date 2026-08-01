@@ -152,7 +152,7 @@
   /* po wylądowaniu blok tytułowy podchodzi pod pineskę (wieś w górnym złotym cięciu) */
   .hero-stage.done + .hero-overlay {
     justify-content: flex-end;
-    padding-bottom: clamp(9rem, 33vh, 20rem);
+    padding-bottom: clamp(11.5rem, 39vh, 23rem);
   }
 
   /* typografia w proporcjach φ: tytuł 4.6rem → nazwa 4.6/φ² ≈ 1.75rem → detal 1.75/φ ≈ 1.08...
@@ -215,19 +215,28 @@
     left: 1.25rem;
     bottom: 1.25rem;
     display: block;
-    padding: 0.52rem 0.72rem;
-    border: 1px solid rgb(250 246 239 / 0.2);
-    border-radius: 0.25rem;
-    background: rgb(8 7 6 / 0.54);
-    color: rgb(250 246 239 / 0.86);
-    font: 600 0.72rem/1 var(--font-sans);
-    letter-spacing: 0.075em;
+    padding: 0 0 0 1.15rem;
+    border: 0;
+    background: transparent;
+    color: rgb(250 246 239 / 0.72);
+    font: 520 0.73rem/1 var(--font-body);
+    letter-spacing: 0.065em;
     font-variant-numeric: tabular-nums;
-    backdrop-filter: blur(8px);
     opacity: 0;
     transform: translateY(0.4rem);
     transition: opacity 0.35s ease, transform 0.35s ease;
     pointer-events: none;
+  }
+
+  .hero-coordinates::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0.72rem;
+    height: 1px;
+    background: var(--bursztyn-jasny);
+    box-shadow: 0 0 8px rgb(232 161 60 / 0.4);
   }
 
   .hero-coordinates.visible {
@@ -269,7 +278,7 @@
     height: 2.55rem;
     padding: 0 0.7rem;
     border-radius: 0.25rem;
-    font: 600 0.76rem/1 var(--font-sans);
+    font: 600 0.76rem/1 var(--font-body);
     cursor: pointer;
   }
 
@@ -314,7 +323,7 @@
 
   @media (max-width: 680px) {
     .hero { min-height: 30rem; }
-    .hero-stage.done + .hero-overlay { padding-bottom: clamp(9.5rem, 31vh, 14rem); }
+    .hero-stage.done + .hero-overlay { padding-bottom: clamp(11rem, 36vh, 16rem); }
     .hero-sub { max-width: 22rem; font-size: clamp(0.92rem, 4vw, 1.1rem); }
     .hero-detal { max-width: 20rem; line-height: 1.65; }
     .hero-map-controls { right: 0.75rem; bottom: 0.75rem; }

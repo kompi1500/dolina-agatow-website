@@ -78,7 +78,7 @@ const ciekawostki = [
     <span class="section-label">Kraina agatów</span>
     <h2>Dolina, w której ziemia kryje skarby</h2>
 
-    <div class="prose">
+    <div class="prose prose-width prose-justify">
       <p>
         Prawie 300 milionów lat temu okolice dzisiejszych Płóczek Górnych zalewała lawa
         permskich wulkanów. W pustkach po gazach uwięzionych w stygnącej lawie chalcedon
@@ -133,12 +133,14 @@ const ciekawostki = [
 <style>
   .dolina {
     background: linear-gradient(180deg, var(--krem) 0%, var(--krem-cien) 100%);
+    padding-top: clamp(2.25rem, 4vw, 3.5rem);
   }
 
   .prose {
-    max-width: 44rem;
     font-size: 1.06rem;
   }
+
+  .prose p { margin-block: 0 1rem; }
 
   .prose strong {
     color: var(--rdza);
