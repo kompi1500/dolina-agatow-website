@@ -7,21 +7,30 @@
       <div class="contact-copy prose-justify">
         <p>
           Masz pytanie dotyczące działalności stowarzyszenia, lokalnego dziedzictwa albo
-          wydarzeń w Płóczkach Górnych i Nagórzu? Aktualne kanały kontaktu internetowego
-          opublikujemy tutaj, gdy tylko będą gotowe.
+          wydarzeń w Płóczkach Górnych i Nagórzu? Napisz do nas — docelowy adres
+          stowarzyszenia opublikujemy tutaj, gdy tylko będzie gotowy.
         </p>
-        <p class="contact-note">
-          Do tego czasu można skontaktować się z nami osobiście lub korespondencyjnie pod
-          adresem siedziby.
-        </p>
+        <div class="email-contact">
+          <span>Kontakt tymczasowy</span>
+          <a href="mailto:artur.kompanowski@gmail.com">artur.kompanowski@gmail.com</a>
+        </div>
       </div>
 
-      <address class="contact-card">
-        <span class="contact-card-label">Siedziba stowarzyszenia</span>
-        <strong>Dolina Agatów</strong>
-        <span>Płóczki Górne 4A</span>
-        <span>59-600 Lwówek Śląski</span>
-      </address>
+      <div class="contact-details">
+        <address class="contact-card">
+          <span class="contact-card-label">Siedziba stowarzyszenia</span>
+          <strong>Dolina Agatów</strong>
+          <span>Płóczki Górne 4A</span>
+          <span>59-600 Lwówek Śląski</span>
+          <span class="identifiers">NIP 6161580750 · REGON 545230880</span>
+        </address>
+
+        <div class="payment-card">
+          <span class="contact-card-label">Dane do wpłat</span>
+          <strong>PKO Bank Polski</strong>
+          <span class="account-number">83 1020 2124 0000 8102 0498 2940</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -44,14 +53,46 @@
 
   .contact-copy { font-size: 1.03rem; }
   .contact-copy p { margin-block: 0 1rem; }
-  .contact-note { color: rgb(250 246 239 / 0.62); }
 
-  .contact-card {
+  .email-contact {
     display: flex;
     flex-direction: column;
-    padding: 1.4rem 0 0 1.35rem;
+    align-items: flex-start;
+    gap: 0.25rem;
+    margin-top: 1.4rem;
+  }
+
+  .email-contact span {
+    color: rgb(250 246 239 / 0.5);
+    font-size: 0.75rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .email-contact a {
+    color: var(--bursztyn-jasny);
+    font-size: 1.08rem;
+    text-decoration-color: rgb(232 161 60 / 0.45);
+    text-underline-offset: 0.2em;
+  }
+
+  .contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-card,
+  .payment-card {
+    display: flex;
+    flex-direction: column;
+    padding-left: 1.35rem;
     border: 0;
     border-left: 2px solid var(--bursztyn);
+  }
+
+  .contact-card {
     font-style: normal;
   }
 
@@ -64,12 +105,29 @@
     text-transform: uppercase;
   }
 
-  .contact-card strong {
+  .contact-card strong,
+  .payment-card strong {
     margin-bottom: 0.3rem;
     color: var(--krem);
     font-family: var(--font-display);
     font-size: 1.25rem;
     font-weight: 570;
+  }
+
+  .identifiers {
+    margin-top: 0.75rem;
+    color: rgb(250 246 239 / 0.5);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .account-number {
+    color: rgb(250 246 239 / 0.8);
+    font-size: 0.86rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.025em;
+    overflow-wrap: anywhere;
+    user-select: all;
   }
 
   @media (max-width: 720px) {
